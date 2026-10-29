@@ -107,3 +107,5 @@ commands.md
 .terraform.lock.hcl
 # FastEmbed model cache (guardrails)
 .cache/
+
+.venv-evals/

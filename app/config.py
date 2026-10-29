@@ -17,7 +17,12 @@ class Settings:
     # --- VECTOR DB (QDRANT) ---
     QDRANT_URL = os.getenv("QDRANT_CLUSTER_ENDPOINT")
     QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-    QDRANT_COLLECTION = "enterprise_rag"
+    QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "enterprise_rag")
+
+    # --- RETRIEVAL (experiment knobs) ---
+    RETRIEVAL_TOP_K = int(os.getenv("RETRIEVAL_TOP_K", "15"))   # candidates from Qdrant
+    RERANK_ENABLED = os.getenv("RERANK_ENABLED", "true").lower() == "true"
+    RERANK_TOP_N = int(os.getenv("RERANK_TOP_N", "5"))          # chunks passed to the LLM
 
     # --- REASONING ENGINE (GROQ) ---
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")

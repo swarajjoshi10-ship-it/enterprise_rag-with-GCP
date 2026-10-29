@@ -1,0 +1,12 @@
+# Eval scoring environment (.venv-evals) - laptop only, never in the Docker images.
+# Separate from requirements.txt because RAGAS 0.4.3 imports
+# langchain_community.chat_models.vertexai, which newer langchain-community removed.
+#
+#   uv venv --python 3.11 .venv-evals
+#   uv pip install --python .venv-evals/Scripts/python.exe -r requirements-evals.txt
+ragas==0.4.3
+langchain-community<0.4
+instructor[google-genai]==1.17.0
+google-genai
+pandas
+python-dotenv
