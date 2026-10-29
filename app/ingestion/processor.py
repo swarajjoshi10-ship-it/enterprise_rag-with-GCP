@@ -192,6 +192,10 @@ def run_universal_ingestion(base_dir: str, explicit_source_type: str = None, wip
     Automatically scans the directory for CLI usage.
     """
     with logfire.span("🌍 Universal Ingestion Started", base_directory=base_dir):
+        if wipe and qdrant_client.collection_exists(settings.QDRANT_COLLECTION):
+            qdrant_client.delete_collection(settings.QDRANT_COLLECTION)
+            logfire.warning(f"🧹 Wiped collection {settings.QDRANT_COLLECTION}")
+
         # Ensure Collection Exists
         if not qdrant_client.collection_exists(settings.QDRANT_COLLECTION):
             qdrant_client.create_collection(
