@@ -21,6 +21,18 @@ resource "google_cloud_run_v2_service" "ingestion" {
           cpu    = "1"
           memory = "2Gi"
         }
+        startup_cpu_boost = true  # extra CPU while heavy libraries (Vertex AI) load
+        cpu_idle          = false # keep CPU after responding: Eventarc requests return 'accepted' and parsing continues in a background task
+      }
+
+      # Allow up to 5 min to start: the first start of a new image is slow
+      startup_probe {
+        period_seconds    = 10
+        timeout_seconds   = 5
+        failure_threshold = 30
+        tcp_socket {
+          port = 8080
+        }
       }
 
       env {

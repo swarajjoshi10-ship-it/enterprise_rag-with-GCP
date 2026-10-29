@@ -19,7 +19,7 @@ resource "google_cloud_run_v2_service" "backend" {
       for_each = var.enable_redis ? [1] : []
       content {
         network_interfaces {
-          network = google_compute_network.rag_vpc.name
+          network = google_compute_network.rag_vpc[0].name
         }
         egress = "PRIVATE_RANGES_ONLY"
       }
@@ -44,6 +44,18 @@ resource "google_cloud_run_v2_service" "backend" {
         limits = {
           cpu    = "1"
           memory = "2Gi"
+        }
+        startup_cpu_boost = true # extra CPU while heavy libraries (Vertex AI) load
+        cpu_idle          = true # request-based billing: CPU only while serving requests
+      }
+
+      # Allow up to 5 min to start: the first start of a new image is slow
+      startup_probe {
+        period_seconds    = 10
+        timeout_seconds   = 5
+        failure_threshold = 30
+        tcp_socket {
+          port = 8080
         }
       }
 
@@ -153,6 +165,18 @@ resource "google_cloud_run_v2_service" "ui" {
         limits = {
           cpu    = "1"
           memory = "2Gi"
+        }
+        startup_cpu_boost = true # extra CPU while heavy libraries (Vertex AI) load
+        cpu_idle          = true # request-based billing: CPU only while serving requests
+      }
+
+      # Allow up to 5 min to start: the first start of a new image is slow
+      startup_probe {
+        period_seconds    = 10
+        timeout_seconds   = 5
+        failure_threshold = 30
+        tcp_socket {
+          port = 8501
         }
       }
 

@@ -25,9 +25,11 @@ data "google_project" "project" {
   project_id = var.project_id
 }
 
-# 3. Networking (Required for Redis)
+# 3. Networking (only needed to reach Redis' private IP)
+# Named after app_name so it never collides with a manually created "rag-vpc"
 resource "google_compute_network" "rag_vpc" {
-  name                    = "rag-vpc"
+  count                   = var.enable_redis ? 1 : 0
+  name                    = "${var.app_name}-vpc"
   auto_create_subnetworks = true
   depends_on              = [google_project_service.services]
 }
@@ -40,7 +42,7 @@ resource "google_redis_instance" "cache" {
   tier               = "BASIC"
   memory_size_gb     = 1
   location_id        = "${var.region}-a"
-  authorized_network = google_compute_network.rag_vpc.id
+  authorized_network = google_compute_network.rag_vpc[0].id
 
   redis_version = "REDIS_7_2"
   display_name  = "RAG Semantic Cache"
@@ -112,12 +114,19 @@ resource "google_project_iam_member" "gcs_pubsub_publishing" {
 }
 
 # 7. Eventarc Service Agent Permissions
+# Google creates this agent lazily, so force it to exist before granting it a role
+resource "google_project_service_identity" "eventarc" {
+  provider   = google-beta
+  project    = var.project_id
+  service    = "eventarc.googleapis.com"
+  depends_on = [google_project_service.services]
+}
+
 # The internal Eventarc account needs to be able to "Get" buckets to validate them
 resource "google_project_iam_member" "eventarc_service_agent" {
-  project    = var.project_id
-  role       = "roles/eventarc.serviceAgent"
-  member     = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-eventarc.iam.gserviceaccount.com"
-  depends_on = [google_project_service.services]
+  project = var.project_id
+  role    = "roles/eventarc.serviceAgent"
+  member  = "serviceAccount:${google_project_service_identity.eventarc.email}"
 }
 
 # 8. Storage Buckets
