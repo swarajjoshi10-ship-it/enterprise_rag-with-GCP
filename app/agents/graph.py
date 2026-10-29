@@ -54,22 +54,31 @@ def get_checkpointer():
         from langgraph.checkpoint.postgres import PostgresSaver
         from psycopg_pool import ConnectionPool
         
-        # We define a connection string for the pool
-        # The host is the local Unix socket path created by the Cloud SQL Connector
-        conninfo = f"postgresql://{settings.DB_USER}:{settings.DB_PASS}@/{settings.DB_NAME}?host=/cloudsql/{settings.DB_CONNECTION_NAME}"
-        
-        # Initialize the pool
-        pool = ConnectionPool(conninfo=conninfo, max_size=10)
-        
-        # Use the pool to create the checkpointer
-        # We wrap it in a context manager to ensure setup happens correctly
-        with pool.connection() as conn:
-            checkpointer = PostgresSaver(conn)
-            checkpointer.setup()
-        
+        from psycopg.conninfo import make_conninfo
+
+        # The host is the local Unix socket path created by the Cloud SQL Connector.
+        # make_conninfo escapes the password, so special characters can't break the string.
+        conninfo = make_conninfo(
+            user=settings.DB_USER,
+            password=settings.DB_PASS,
+            dbname=settings.DB_NAME,
+            host=f"/cloudsql/{settings.DB_CONNECTION_NAME}",
+        )
+
+        # autocommit is required: setup() runs CREATE INDEX CONCURRENTLY, which
+        # cannot run inside a transaction block (LangGraph's documented settings)
+        pool = ConnectionPool(
+            conninfo=conninfo,
+            max_size=10,
+            kwargs={"autocommit": True, "prepare_threshold": 0},
+        )
+
+        checkpointer = PostgresSaver(pool)
+        checkpointer.setup()
+
         # Note: In a long-running app, the pool stays alive in the background
         print("🐘 Using Persistent PostgresSaver (Cloud SQL Pool)")
-        return PostgresSaver(pool)
+        return checkpointer
         
     except Exception as e:
         from langgraph.checkpoint.memory import MemorySaver
