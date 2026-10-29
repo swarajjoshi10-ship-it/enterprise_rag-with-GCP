@@ -14,6 +14,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Response
 from app.agents.graph import rag_agent
+from app.gateway import warm_up
 from app.guardrails import guard, initialize_rails
 from app.services.gcp.redis_semantic_cache import check_cache, update_cache
 
@@ -26,7 +27,10 @@ async def lifespan(app: FastAPI):
     # Load the guardrails embedding index once, before serving traffic.
     # In a worker thread: NeMo's sync generate() refuses to run inside the event loop.
     await asyncio.to_thread(initialize_rails)
+    # The first LLM call is slow; warm the gateway in the background without delaying startup
+    warm_task = asyncio.create_task(asyncio.to_thread(warm_up))
     yield
+    warm_task.cancel()
 
 
 # Initialize FastAPI
@@ -70,6 +74,7 @@ def query(request: QueryRequest):
         "messages": [{"role": "user", "content": q}],
         "current_query": q,
         "documents": [],
+        "doc_meta": [],
         "plan": ["Start"],
         "status": "Initializing Graph..."
     }
@@ -114,7 +119,8 @@ def query(request: QueryRequest):
             "answer": answer,
             "thought_process": final_output.get("plan"),
             "status": final_output.get("status"),
-            "sources": final_output.get("documents", [])
+            "sources": final_output.get("documents", []),
+            "source_meta": final_output.get("doc_meta", [])
         }
     except Exception as e:
         logfire.error(f"❌ Backend Execution Failed: {e}")

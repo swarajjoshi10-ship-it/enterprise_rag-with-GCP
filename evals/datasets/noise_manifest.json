@@ -1,0 +1,1251 @@
+{
+  "seed": 2026,
+  "true_chunks": 78,
+  "max_chunks_per_doc": 20,
+  "max_pages": 15,
+  "skipped_no_text": 13,
+  "levels": {
+    "0x": {
+      "noise_chunks": 0,
+      "noise_docs": 0,
+      "total_chunks": 78
+    },
+    "1x": {
+      "noise_chunks": 78,
+      "noise_docs": 6,
+      "total_chunks": 156
+    },
+    "10x": {
+      "noise_chunks": 780,
+      "noise_docs": 48,
+      "total_chunks": 858
+    },
+    "50x": {
+      "noise_chunks": 3900,
+      "noise_docs": 244,
+      "total_chunks": 3978
+    }
+  },
+  "documents": [
+    {
+      "file": "RadixVM - (Slides) Scalable address spaces for multithreaded applications.pdf",
+      "chunks": 4,
+      "first_chunk": 0
+    },
+    {
+      "file": "GRIM - Leveraging GPUs for Kernel Integrity Monitoring.pdf",
+      "chunks": 20,
+      "first_chunk": 4
+    },
+    {
+      "file": "A comparison of SPDY and HTTP performance - Microsoft Research (2012).pdf",
+      "chunks": 12,
+      "first_chunk": 24
+    },
+    {
+      "file": "An Introduction to Computational Networks and the Computational Network Toolkit - Microsoft (CNTKBook-20160121).pdf",
+      "chunks": 20,
+      "first_chunk": 36
+    },
+    {
+      "file": "MMLSpark - Unifying Machine Learning Ecosystems at Massive Scales - 2019 (1810.08744).pdf",
+      "chunks": 20,
+      "first_chunk": 56
+    },
+    {
+      "file": "Pattern Matching using Suffix Trays, Arrays and Trees (2014).pdf",
+      "chunks": 20,
+      "first_chunk": 76
+    },
+    {
+      "file": "Avoiding AVX to SSE Transition Penalties.pdf",
+      "chunks": 20,
+      "first_chunk": 96
+    },
+    {
+      "file": "Logistic Regression.pdf",
+      "chunks": 20,
+      "first_chunk": 116
+    },
+    {
+      "file": "Compressed Bloom Filters.pdf",
+      "chunks": 20,
+      "first_chunk": 136
+    },
+    {
+      "file": "Performance Evaluation of Concurrent Lock-free Data Structures on GPUs - Slides (2012).pdf",
+      "chunks": 4,
+      "first_chunk": 156
+    },
+    {
+      "file": "Intel IO Acceleration Technology (IOAT) Overview.pdf",
+      "chunks": 6,
+      "first_chunk": 160
+    },
+    {
+      "file": "Cache Organization and Memory Management of the Intel Nehalem Computer Architecture.pdf",
+      "chunks": 20,
+      "first_chunk": 166
+    },
+    {
+      "file": "Doxygen Quick Reference.pdf",
+      "chunks": 10,
+      "first_chunk": 186
+    },
+    {
+      "file": "Adaptive String Dictionary Compression in In-Memory Column-Store Database Systems (2014).pdf",
+      "chunks": 20,
+      "first_chunk": 196
+    },
+    {
+      "file": "Parallel and Sequential Data Structures and Algorithms - Lecture 27 - Hashing II (2012).pdf",
+      "chunks": 17,
+      "first_chunk": 216
+    },
+    {
+      "file": "Proving the Correctness of Nonblocking Data Structures - ACM (p30-desnoyers).pdf",
+      "chunks": 20,
+      "first_chunk": 233
+    },
+    {
+      "file": "Seminars - A Collection of Materials on Seminar Approaches and Evaluation Strategies.pdf",
+      "chunks": 20,
+      "first_chunk": 253
+    },
+    {
+      "file": "HARE - Hardware Acceleration for Regular Expressions - 2016 (micro16).pdf",
+      "chunks": 20,
+      "first_chunk": 273
+    },
+    {
+      "file": "Paper - Fractal Prefetching B-Trees.pdf",
+      "chunks": 20,
+      "first_chunk": 293
+    },
+    {
+      "file": "Vim Book (vimbook-OPL).pdf",
+      "chunks": 16,
+      "first_chunk": 313
+    },
+    {
+      "file": "Learning Statistics with R (lsr-0.5).pdf",
+      "chunks": 20,
+      "first_chunk": 329
+    },
+    {
+      "file": "Training Language Models To Follow Instructions With Human Feedback - 2022 (2203.02155v1).pdf",
+      "chunks": 20,
+      "first_chunk": 349
+    },
+    {
+      "file": "Agner Fog - Optimizing Subroutines in Assembly Language - An optimization guide to x86 platforms (2013-09-28).pdf",
+      "chunks": 20,
+      "first_chunk": 369
+    },
+    {
+      "file": "Trie Memtables in Cassandra - 2022 (p3359-lambov).pdf",
+      "chunks": 20,
+      "first_chunk": 389
+    },
+    {
+      "file": "Compiler Calling Conventions.pdf",
+      "chunks": 20,
+      "first_chunk": 409
+    },
+    {
+      "file": "CUDA Math API (January 2022).pdf",
+      "chunks": 20,
+      "first_chunk": 429
+    },
+    {
+      "file": "Windows Kernel - MSDN Export (7th Feb, 2019).pdf",
+      "chunks": 12,
+      "first_chunk": 449
+    },
+    {
+      "file": "AMD - AMD64 Programmer's Manual - Volume 3 - General Purpose and System Instructions - Rev 3.26 - May 2018 (24594).pdf",
+      "chunks": 20,
+      "first_chunk": 461
+    },
+    {
+      "file": "Parallel Depth-First Search for Directed Acyclic Graphs - Poster (2018).pdf",
+      "chunks": 3,
+      "first_chunk": 481
+    },
+    {
+      "file": "Architecture of a Database System - 2007 (fntdb07-architecture).pdf",
+      "chunks": 20,
+      "first_chunk": 484
+    },
+    {
+      "file": "FlashAttention-2 - Faster Attention with Better Parallelism and Work Partitioning (2307.08691v1).pdf",
+      "chunks": 20,
+      "first_chunk": 504
+    },
+    {
+      "file": "Parsing a SWIFT Message (May 2007).pdf",
+      "chunks": 11,
+      "first_chunk": 524
+    },
+    {
+      "file": "Introduction to the Pin Instrumentation Tool - Slides (27 Mar 2013).pdf",
+      "chunks": 4,
+      "first_chunk": 535
+    },
+    {
+      "file": "WekaFS Architectural White Paper (2021).pdf",
+      "chunks": 20,
+      "first_chunk": 539
+    },
+    {
+      "file": "Deep Residual Learning for Image Recognition (1512.03385v1).pdf",
+      "chunks": 20,
+      "first_chunk": 559
+    },
+    {
+      "file": "Distinct Elements in Streams - An Algorithm for the (Text) Book (2301.10191v2).pdf",
+      "chunks": 13,
+      "first_chunk": 579
+    },
+    {
+      "file": "Linear Algebra.pdf",
+      "chunks": 17,
+      "first_chunk": 592
+    },
+    {
+      "file": "How Microsoft Builds Software (1997).pdf",
+      "chunks": 20,
+      "first_chunk": 609
+    },
+    {
+      "file": "SC11 - Overview of RDMA on Windows.pdf",
+      "chunks": 4,
+      "first_chunk": 629
+    },
+    {
+      "file": "Scaling Joins to a Thousand GPUs - 2021 (gao_adms21).pdf",
+      "chunks": 20,
+      "first_chunk": 633
+    },
+    {
+      "file": "Perfect Spatial Hashing.pdf",
+      "chunks": 20,
+      "first_chunk": 653
+    },
+    {
+      "file": "Data Structures for Data-Intensive Applications - Tradeoffs and Design Guidelines (fnt23-athanassoulis).pdf",
+      "chunks": 20,
+      "first_chunk": 673
+    },
+    {
+      "file": "X-Ray - A Function Call Tracing System.pdf",
+      "chunks": 14,
+      "first_chunk": 693
+    },
+    {
+      "file": "Heracles- Improving Resource Efficiency at Scale (2015.heracles.isca).pdf",
+      "chunks": 20,
+      "first_chunk": 707
+    },
+    {
+      "file": "NVIDIA - Optimizing Parallel Reduction in CUDA - Slides.pdf",
+      "chunks": 5,
+      "first_chunk": 727
+    },
+    {
+      "file": "Finding Similar Items.pdf",
+      "chunks": 20,
+      "first_chunk": 732
+    },
+    {
+      "file": "Paper - Wegner Transactive Memory.pdf",
+      "chunks": 20,
+      "first_chunk": 752
+    },
+    {
+      "file": "Reevaluation of Programmed IO with Write-Combining Buffers to Improve IO Performance on Cluster Systems (NAS2015_kPIO+WC).pdf",
+      "chunks": 20,
+      "first_chunk": 772
+    },
+    {
+      "file": "Oracle PLSQL Coding Guidelines (Top Coder, 2006).pdf",
+      "chunks": 8,
+      "first_chunk": 792
+    },
+    {
+      "file": "Biased Reference Counting - Minimizing Atomic Operations in Garbage Collection - 2018 (3243176.3243195).pdf",
+      "chunks": 20,
+      "first_chunk": 800
+    },
+    {
+      "file": "Fractal Prefetching B+ Trees - Optimizing Both Cache and Disk Performance.pdf",
+      "chunks": 20,
+      "first_chunk": 820
+    },
+    {
+      "file": "iBFS - Concurrent Breadth-First Search on GPUs - 2016 (ibfs_tcm18-284417).pdf",
+      "chunks": 20,
+      "first_chunk": 840
+    },
+    {
+      "file": "Intel - _vectorcall and __regcall Demystified.pdf",
+      "chunks": 9,
+      "first_chunk": 860
+    },
+    {
+      "file": "Cooperative Kernels - GPU Multitasking for Blocking Algorithms (fse2017).pdf",
+      "chunks": 20,
+      "first_chunk": 869
+    },
+    {
+      "file": "Kernel Pool Exploitation on Windows 7 (16032-kernel-pool-exploitation-on-windows-7).pdf",
+      "chunks": 20,
+      "first_chunk": 889
+    },
+    {
+      "file": "Improving the speed of neural networks on CPUs (37631).pdf",
+      "chunks": 20,
+      "first_chunk": 909
+    },
+    {
+      "file": "A Systematic Evaluation of Transient Execution Attacks and Defenses - 15th May 2019 (1811.05441).pdf",
+      "chunks": 6,
+      "first_chunk": 929
+    },
+    {
+      "file": "Driver Annotations in Depth - Part 2 - Slides - 2008 (dde-t676_ddc08).pdf",
+      "chunks": 3,
+      "first_chunk": 935
+    },
+    {
+      "file": "A Tunable Compression Framework for Bitmap Indices (Guzun_ICDE_2014).pdf",
+      "chunks": 20,
+      "first_chunk": 938
+    },
+    {
+      "file": "An NUMA API for Linux - Andi Kleen, Aug 2004.pdf",
+      "chunks": 20,
+      "first_chunk": 958
+    },
+    {
+      "file": "Serving Large Language Models on Huawei CloudMatrix384 (2506.12708v1).pdf",
+      "chunks": 20,
+      "first_chunk": 978
+    },
+    {
+      "file": "Compiler Construction - The Art of Niklaus Wirth (2000).pdf",
+      "chunks": 20,
+      "first_chunk": 998
+    },
+    {
+      "file": "Heapy - A Memory Profiler and Debugger for Python - 2006 (heapy-thesis).pdf",
+      "chunks": 20,
+      "first_chunk": 1018
+    },
+    {
+      "file": "Multiple Byte Processing with Full-Word Instructions - Leslie Lamport (1975).pdf",
+      "chunks": 17,
+      "first_chunk": 1038
+    },
+    {
+      "file": "On the Data Access Issue (Or Why CPUs Are Starving) - EuroSciPy 2009.pdf",
+      "chunks": 12,
+      "first_chunk": 1055
+    },
+    {
+      "file": "Windows - A Software Engineering Odyssey (Lucovsky).pdf",
+      "chunks": 5,
+      "first_chunk": 1067
+    },
+    {
+      "file": "Graph Theoretic Obstacles to Perfect Hashing - 1994 (TR0257).pdf",
+      "chunks": 20,
+      "first_chunk": 1072
+    },
+    {
+      "file": "Tru64 - Object File and Symtable Spec.PDF",
+      "chunks": 20,
+      "first_chunk": 1092
+    },
+    {
+      "file": "Fast CRC Computation for Generic Polynomials Using PCLMULQDQ Instruction - Intel (December, 2009).pdf",
+      "chunks": 13,
+      "first_chunk": 1112
+    },
+    {
+      "file": "Intel 64 and IA-32 Architectures Optimization Reference Manual - May 2020 (248966-043).pdf",
+      "chunks": 20,
+      "first_chunk": 1125
+    },
+    {
+      "file": "IEEE 802.3ad Link Aggregation.pdf",
+      "chunks": 3,
+      "first_chunk": 1145
+    },
+    {
+      "file": "Developing and Porting Applications to AIX (sg245674).pdf",
+      "chunks": 20,
+      "first_chunk": 1148
+    },
+    {
+      "file": "Transactional Memory - CS4021 - Slides.pdf",
+      "chunks": 9,
+      "first_chunk": 1168
+    },
+    {
+      "file": "MISTRAL - Processing Relational Queries Using a Multidimensional Access Method - 2000 - Slides and Comments.pdf",
+      "chunks": 13,
+      "first_chunk": 1177
+    },
+    {
+      "file": "A Reliable Randomized Algorithm for the Closest-Pair Problem - 1997 (CP-11.4.1997).pdf",
+      "chunks": 20,
+      "first_chunk": 1190
+    },
+    {
+      "file": "Compiler Design - Theory, Tools and Examples.pdf",
+      "chunks": 20,
+      "first_chunk": 1210
+    },
+    {
+      "file": "Chinese Remainder Theorem and its Applications.pdf",
+      "chunks": 16,
+      "first_chunk": 1230
+    },
+    {
+      "file": "Calculus Made Easy.pdf",
+      "chunks": 8,
+      "first_chunk": 1246
+    },
+    {
+      "file": "DeepSeek LLM - Scaling Open-Source Language Models with Longtermism - 2024 (2401.02954v1).pdf",
+      "chunks": 20,
+      "first_chunk": 1254
+    },
+    {
+      "file": "ELF Handling for Thread-Local Storage - Ulrich Drepper (2005).pdf",
+      "chunks": 20,
+      "first_chunk": 1274
+    },
+    {
+      "file": "Compressed Perfect Embedded Skip Lists for Quick Inverted-Index Lookups.pdf",
+      "chunks": 20,
+      "first_chunk": 1294
+    },
+    {
+      "file": "Tango - Distributed Data Structures over a Shared Log.pdf",
+      "chunks": 20,
+      "first_chunk": 1314
+    },
+    {
+      "file": "Performance and Reliability Analysis Using Directed Acyclic Graphs - 1987 (10.1.1.380.4352).pdf",
+      "chunks": 20,
+      "first_chunk": 1334
+    },
+    {
+      "file": "5-Level Paging and 5-Level EPT - Intel - Revision 1.0 (December, 2016).pdf",
+      "chunks": 20,
+      "first_chunk": 1354
+    },
+    {
+      "file": "Towards a New File Format for Big Data - SIMD-Friendly Composable Compression (2020-AzimAfroozeh).pdf",
+      "chunks": 16,
+      "first_chunk": 1374
+    },
+    {
+      "file": "Practical Data Compression for Modern Memory Hierarchies - July 2016 - CMU-CS-16-116 (1609.02067).pdf",
+      "chunks": 20,
+      "first_chunk": 1390
+    },
+    {
+      "file": "Intel AVX-512 Architecture - Poster - 2013 (Demikhovsky-Poster).pdf",
+      "chunks": 6,
+      "first_chunk": 1410
+    },
+    {
+      "file": "Understanding the Overheads of Launching CUDA Kernels (Poster17-moc).pdf",
+      "chunks": 4,
+      "first_chunk": 1416
+    },
+    {
+      "file": "Intel - PMU Sharing Guidelines (30388).pdf",
+      "chunks": 13,
+      "first_chunk": 1420
+    },
+    {
+      "file": "Branch and Data Herding - Reducing Control and Memory Divergence for Error-tolerant GPU Applications (tmm12_preprint).pdf",
+      "chunks": 20,
+      "first_chunk": 1433
+    },
+    {
+      "file": "Oracle - Partitioning Tips and Tricks (Arup Nanda).pdf",
+      "chunks": 4,
+      "first_chunk": 1453
+    },
+    {
+      "file": "BERT - Pre-training of Deep Bidirectional Transformers for Language Understanding (2018).pdf",
+      "chunks": 20,
+      "first_chunk": 1457
+    },
+    {
+      "file": "A Brief Tutorial on Database Queries, Data Mining, and OLAP (hamel-197-manuscript-final).pdf",
+      "chunks": 15,
+      "first_chunk": 1477
+    },
+    {
+      "file": "Parallel Depth-First Search for Directed Acyclic Graphs - Slides (2018).pdf",
+      "chunks": 5,
+      "first_chunk": 1492
+    },
+    {
+      "file": "Open Crypto Audit Project - TrueCrypt (iSec).pdf",
+      "chunks": 17,
+      "first_chunk": 1497
+    },
+    {
+      "file": "Shuffler - Fast and Deployable Continuous Code Re-Randomization - 2016 (shuffler-osdi16).pdf",
+      "chunks": 20,
+      "first_chunk": 1514
+    },
+    {
+      "file": "NVIDIA - GeForce GTX 980 - Whitepaper.pdf",
+      "chunks": 19,
+      "first_chunk": 1534
+    },
+    {
+      "file": "Windows Commands.pdf",
+      "chunks": 7,
+      "first_chunk": 1553
+    },
+    {
+      "file": "A Probabilistic Theory of Deep Learning (1504.00641v1).pdf",
+      "chunks": 20,
+      "first_chunk": 1560
+    },
+    {
+      "file": "libtorque - Portable Multithreaded Continuations for Scalable Event-Driven Programs.pdf",
+      "chunks": 19,
+      "first_chunk": 1580
+    },
+    {
+      "file": "A Novel Hybrid Quicksort Algorithm Vectorized using AVX-512 on Intel Skylake - 2017 (Paper_44-A_Novel_Hybrid_Quicksort_Algorithm_Vectorized).pdf",
+      "chunks": 20,
+      "first_chunk": 1599
+    },
+    {
+      "file": "QuickThread - Comparison between QuickThread and OpenMP 3.0 under system loads (2009).pdf",
+      "chunks": 17,
+      "first_chunk": 1619
+    },
+    {
+      "file": "Cache, Hash and Space-Efficient Bloom Filters (10.1.1.93.7688).pdf",
+      "chunks": 20,
+      "first_chunk": 1636
+    },
+    {
+      "file": "Understanding the Basis of the Kalman Filter Via a Simple and Intuitive Derivation (2012).pdf",
+      "chunks": 16,
+      "first_chunk": 1656
+    },
+    {
+      "file": "Optimization of Generalized Unary Coding (1611.03353).pdf",
+      "chunks": 7,
+      "first_chunk": 1672
+    },
+    {
+      "file": "The Design and Implementation of Modern Column-Oriented Database Systems (abadi-column-stores).pdf",
+      "chunks": 19,
+      "first_chunk": 1679
+    },
+    {
+      "file": "An Introduction To Statistical Learning with Applications in R (ISLR Seventh Printing).pdf",
+      "chunks": 15,
+      "first_chunk": 1698
+    },
+    {
+      "file": "CK-12 Probability and Statistics Advanced - Second Edition.pdf",
+      "chunks": 20,
+      "first_chunk": 1713
+    },
+    {
+      "file": "Fast Splittable Pseudorandom Number Generators (oopsla14).pdf",
+      "chunks": 20,
+      "first_chunk": 1733
+    },
+    {
+      "file": "The Economics of Immediate Gratification (jbdmfinal).pdf",
+      "chunks": 20,
+      "first_chunk": 1753
+    },
+    {
+      "file": "Pointer Analysis.pdf",
+      "chunks": 17,
+      "first_chunk": 1773
+    },
+    {
+      "file": "Near-Optimal Space Perfect Hashing Algorithms - PhD Thesis (2008).pdf",
+      "chunks": 12,
+      "first_chunk": 1790
+    },
+    {
+      "file": "Remote Library Injection (April 6th 2004).pdf",
+      "chunks": 20,
+      "first_chunk": 1802
+    },
+    {
+      "file": "True IOMMU Protection from DMA Attacks - When Copy is Faster than Zero Copy - 2016 (cim-asplos-2016).pdf",
+      "chunks": 20,
+      "first_chunk": 1822
+    },
+    {
+      "file": "Objconv - Instructions.pdf",
+      "chunks": 20,
+      "first_chunk": 1842
+    },
+    {
+      "file": "Dodd-Frank Act Stress Test 2014 - Supervisory Stress Test Methodology and Results - March 2014 (bcreg20140320a1).pdf",
+      "chunks": 20,
+      "first_chunk": 1862
+    },
+    {
+      "file": "Vulcan - Binary Transformation in a Distributed Environment (tr-2001-50).pdf",
+      "chunks": 20,
+      "first_chunk": 1882
+    },
+    {
+      "file": "PS4 Toolchain - 2013.pdf",
+      "chunks": 3,
+      "first_chunk": 1902
+    },
+    {
+      "file": "NVDIMM Namespace Specification - Intel (Revision 1.0, April 2015).pdf",
+      "chunks": 18,
+      "first_chunk": 1905
+    },
+    {
+      "file": "PLWAH+ - A Bitmap Index Compressing Scheme - 2014 (jcao_c_plwah).pdf",
+      "chunks": 7,
+      "first_chunk": 1923
+    },
+    {
+      "file": "Rainbow matchings in r-partite r-graphs - 2009 (v16i1r119).pdf",
+      "chunks": 18,
+      "first_chunk": 1930
+    },
+    {
+      "file": "Finding Structure in Time (1990).pdf",
+      "chunks": 20,
+      "first_chunk": 1948
+    },
+    {
+      "file": "Perfect Hash Functions - Slides.pdf",
+      "chunks": 3,
+      "first_chunk": 1968
+    },
+    {
+      "file": "Joint Strike Fighter Air Vehicle C++ Coding Standards - Dec 2005 (Doc. 2RDU00001 Rev. C).pdf",
+      "chunks": 20,
+      "first_chunk": 1971
+    },
+    {
+      "file": "How Does a GPU Shader Work (2018).pdf",
+      "chunks": 5,
+      "first_chunk": 1991
+    },
+    {
+      "file": "MISTRAL - Processing Relational Queries Using a Multidimensional Access Method - 2000 - Slides.pdf",
+      "chunks": 5,
+      "first_chunk": 1996
+    },
+    {
+      "file": "Training of CC4 Neural Network using Unary and Spread-Unary Inputs (Potluri_okstate_0664M_14453).pdf",
+      "chunks": 12,
+      "first_chunk": 2001
+    },
+    {
+      "file": "Structured Exception Handler Exploitation (17505).pdf",
+      "chunks": 4,
+      "first_chunk": 2013
+    },
+    {
+      "file": "A Mathematician's Lament - Paul Lockhart.pdf",
+      "chunks": 20,
+      "first_chunk": 2017
+    },
+    {
+      "file": "Adaptive Insertion Policies for High Performance Caching (ISCA-2007-Qureshi-SetDuelingControl).pdf",
+      "chunks": 20,
+      "first_chunk": 2037
+    },
+    {
+      "file": "CUDA Training Series - 02 - CUDA Shared Memory (2020).pdf",
+      "chunks": 3,
+      "first_chunk": 2057
+    },
+    {
+      "file": "Gunrock - A High-Performance Graph Processing Library on the GPU - 2016.pdf",
+      "chunks": 20,
+      "first_chunk": 2060
+    },
+    {
+      "file": "Copy-and-Patch Compilation - A Fast Compilation Algorithm for High-Level Languages and Bytecode - Oct 2021 (3485513).pdf",
+      "chunks": 20,
+      "first_chunk": 2080
+    },
+    {
+      "file": "Advanced Data Structures - MIT 6.851 (2012).pdf",
+      "chunks": 20,
+      "first_chunk": 2100
+    },
+    {
+      "file": "Codes for Positive Integers - CS423, Lecture 6, McGill (2008).pdf",
+      "chunks": 6,
+      "first_chunk": 2120
+    },
+    {
+      "file": "How To Code In HTML5 And CSS3 - Damian Wielgosik.pdf",
+      "chunks": 6,
+      "first_chunk": 2126
+    },
+    {
+      "file": "A Quick Guide To LaTeX.pdf",
+      "chunks": 7,
+      "first_chunk": 2132
+    },
+    {
+      "file": "pre-print-oopsla16.pdf",
+      "chunks": 20,
+      "first_chunk": 2139
+    },
+    {
+      "file": "Hyperedge Replacement Graph Grammars.pdf",
+      "chunks": 20,
+      "first_chunk": 2159
+    },
+    {
+      "file": "The R Inferno (30th April, 2011).pdf",
+      "chunks": 19,
+      "first_chunk": 2179
+    },
+    {
+      "file": "Making Lockless Synchronization Fast - Performance Implications of Memory Reclamation (hart_ipdps06).pdf",
+      "chunks": 20,
+      "first_chunk": 2198
+    },
+    {
+      "file": "Parallelism in Randomized Incremental Algorithms (BGSS16).pdf",
+      "chunks": 20,
+      "first_chunk": 2218
+    },
+    {
+      "file": "How the VAX Lost Its POLY (and EMOD and ACB_floating too) (vax_poly).pdf",
+      "chunks": 5,
+      "first_chunk": 2238
+    },
+    {
+      "file": "Oracle B-Tree Index Internals - Rebuilding the Truth (Richard Foote).pdf",
+      "chunks": 6,
+      "first_chunk": 2243
+    },
+    {
+      "file": "Structured Deferral - Synchronization via Procrastination - ACM (p20-mckenney).pdf",
+      "chunks": 20,
+      "first_chunk": 2249
+    },
+    {
+      "file": "NVIDIA - Accelerated Computing and the Democratization of Supercomputing Technical Overview (sc18-tesla-democratization-tech-overview-r4-web).pdf",
+      "chunks": 14,
+      "first_chunk": 2269
+    },
+    {
+      "file": "DataMining-ch4.pdf",
+      "chunks": 11,
+      "first_chunk": 2283
+    },
+    {
+      "file": "Machine Learning - The High-Interest Credit Card of Technical Debt - Google (43146).pdf",
+      "chunks": 20,
+      "first_chunk": 2294
+    },
+    {
+      "file": "Just-in-Time Static Type Checking for Dynamic Languages (1604.03641v1).pdf",
+      "chunks": 20,
+      "first_chunk": 2314
+    },
+    {
+      "file": "Oracle Row Pattern Matching in Sequences of Rows.pdf",
+      "chunks": 20,
+      "first_chunk": 2334
+    },
+    {
+      "file": "Communication Efficient Distributed Machine Learning with the Parameter Server.pdf",
+      "chunks": 20,
+      "first_chunk": 2354
+    },
+    {
+      "file": "Jump the Queue to Lower Latency - USENIX - April 2015 (login_apr15_02_grosvenor_041315).pdf",
+      "chunks": 20,
+      "first_chunk": 2374
+    },
+    {
+      "file": "A Relational Model of Data for Large Shared Data Banks - E.F. Codd (1970).pdf",
+      "chunks": 20,
+      "first_chunk": 2394
+    },
+    {
+      "file": "Improving Compiler Optimization with Machine Learning (2014_Kulkarni_Sameer_PhD).pdf",
+      "chunks": 11,
+      "first_chunk": 2414
+    },
+    {
+      "file": "Self-Adjusting Binary Search Trees (1985).pdf",
+      "chunks": 20,
+      "first_chunk": 2425
+    },
+    {
+      "file": "Peter Hlavaty - Back To The CORE (syscan2015).pdf",
+      "chunks": 3,
+      "first_chunk": 2445
+    },
+    {
+      "file": "A Sense of Self for Unix Processes - 1996 (ieee-sp-96-unix).pdf",
+      "chunks": 20,
+      "first_chunk": 2448
+    },
+    {
+      "file": "Systolic Arrays for VLSI - 1978 (ADA066060).pdf",
+      "chunks": 16,
+      "first_chunk": 2468
+    },
+    {
+      "file": "Intel 64 and IA-32 Architectures Software Developer's Manual - Combined Volumes 1-4 - May 2018 (325462-sdm-vol-1-2abcd-3abcd).pdf",
+      "chunks": 20,
+      "first_chunk": 2484
+    },
+    {
+      "file": "New Cardinality Estimation Algorithms for HyperLogLog Sketches (1702.01284).pdf",
+      "chunks": 20,
+      "first_chunk": 2504
+    },
+    {
+      "file": "37 Million Compilations - Investigating Novice Programming Mistakes in Large-Scale Student Data (fp1187-altadmri).pdf",
+      "chunks": 19,
+      "first_chunk": 2524
+    },
+    {
+      "file": "The Dark Side of Winsock (DC_13-Levin).pdf",
+      "chunks": 10,
+      "first_chunk": 2543
+    },
+    {
+      "file": "ObCaptureObjectName.pdf",
+      "chunks": 5,
+      "first_chunk": 2553
+    },
+    {
+      "file": "EventSource Activities Specification (2016).pdf",
+      "chunks": 20,
+      "first_chunk": 2558
+    },
+    {
+      "file": "Intel 64 and IA-32 Architectures Optimization Reference Manual - Sept 2014 (248966-030).pdf",
+      "chunks": 20,
+      "first_chunk": 2578
+    },
+    {
+      "file": "TPC-H v3.0.1.pdf",
+      "chunks": 20,
+      "first_chunk": 2598
+    },
+    {
+      "file": "PE File Structure.pdf",
+      "chunks": 20,
+      "first_chunk": 2618
+    },
+    {
+      "file": "Dapper - A Large-Scale Distributed Systems Tracing Infrastructure (36356).pdf",
+      "chunks": 20,
+      "first_chunk": 2638
+    },
+    {
+      "file": "Calculus for Mathematicians, Computer Scientists, and Physists.pdf",
+      "chunks": 14,
+      "first_chunk": 2658
+    },
+    {
+      "file": "Bumper Sticker Computer Science.pdf",
+      "chunks": 17,
+      "first_chunk": 2672
+    },
+    {
+      "file": "WarpCore - A Library for fast Hash Tables on GPUs - GPU Tech Conference 2021 (Slides).pdf",
+      "chunks": 7,
+      "first_chunk": 2689
+    },
+    {
+      "file": "To Wash It All Away.pdf",
+      "chunks": 20,
+      "first_chunk": 2696
+    },
+    {
+      "file": "A Locality-Sensitive Hash for Real Vectors (10.1.1.215.7690).pdf",
+      "chunks": 20,
+      "first_chunk": 2716
+    },
+    {
+      "file": "Itanium - A System Implementor's Tale (2005).pdf",
+      "chunks": 20,
+      "first_chunk": 2736
+    },
+    {
+      "file": "Real-Time Parallel Hashing on the GPU.pdf",
+      "chunks": 20,
+      "first_chunk": 2756
+    },
+    {
+      "file": "Faster Base64 Encoding and Decoding Using AVX2 Instructions v4 (2018) (1704.00605).pdf",
+      "chunks": 20,
+      "first_chunk": 2776
+    },
+    {
+      "file": "Fast Multiple String Matching Using Streaming SIMD Extensions Technology - 2013 (psc13p08_presentation).pdf",
+      "chunks": 4,
+      "first_chunk": 2796
+    },
+    {
+      "file": "Stratified B-trees and Versioning Dictionaries - 2011 (1103.4282v2).pdf",
+      "chunks": 20,
+      "first_chunk": 2800
+    },
+    {
+      "file": "The Robust Beauty of Improper Linear Models in Decision Making - July 1979.pdf",
+      "chunks": 20,
+      "first_chunk": 2820
+    },
+    {
+      "file": "Analyzing Contextual Bias of Program Execution on Modern CPUs (Lars Kirkholt Melhus, NTNU, June 2013).pdf",
+      "chunks": 12,
+      "first_chunk": 2840
+    },
+    {
+      "file": "GDB Cheat Sheet.pdf",
+      "chunks": 4,
+      "first_chunk": 2852
+    },
+    {
+      "file": "Optimizing Indirect Memory References with milk - 2016 (p299-kiriansky).pdf",
+      "chunks": 20,
+      "first_chunk": 2856
+    },
+    {
+      "file": "Microsoft Portable Executable and Common Object File Format Specification - Revision 8.3 (6th Feb, 2013).pdf",
+      "chunks": 20,
+      "first_chunk": 2876
+    },
+    {
+      "file": "Chord - A Scalable Peer-to-peer Lookup Service for Internet Applications (2001).pdf",
+      "chunks": 20,
+      "first_chunk": 2896
+    },
+    {
+      "file": "Layer Normalization (1607.06450v1).pdf",
+      "chunks": 20,
+      "first_chunk": 2916
+    },
+    {
+      "file": "CUDA - CUDA Streams Best Practices - Slides (S4158).pdf",
+      "chunks": 4,
+      "first_chunk": 2936
+    },
+    {
+      "file": "SEDA - An Architecture for Well-Conditioned, Scalable Internet Services - Dissertation (mdw-phdthesis).pdf",
+      "chunks": 20,
+      "first_chunk": 2940
+    },
+    {
+      "file": "uops.info - Characterizing Latency, Throughput, and Port Usage of Instructions on Intel Microarchitectures - 10 Oct 2018 (1810.04610).pdf",
+      "chunks": 20,
+      "first_chunk": 2960
+    },
+    {
+      "file": "k-Ary Search on Modern Processors.pdf",
+      "chunks": 20,
+      "first_chunk": 2980
+    },
+    {
+      "file": "Can't Get To Performing Without Storming (pat-ma03).pdf",
+      "chunks": 14,
+      "first_chunk": 3000
+    },
+    {
+      "file": "IcebergHT - High Performance PMEM Hash Tables Through Stability and Low Associativity (2210.04068).pdf",
+      "chunks": 20,
+      "first_chunk": 3014
+    },
+    {
+      "file": "FASTHash - FPGA-Based High Througput Parallel Hash Table (978-3-030-50743-5_Chapter_1).pdf",
+      "chunks": 20,
+      "first_chunk": 3034
+    },
+    {
+      "file": "Intel SIMD - Austronomy and Space Science - Slides (DIFX_2014-SIMD).pdf",
+      "chunks": 4,
+      "first_chunk": 3054
+    },
+    {
+      "file": "IBM Fibre Channel Basic Storage Area Network (SAN) Configuration Setup Guide.pdf",
+      "chunks": 11,
+      "first_chunk": 3058
+    },
+    {
+      "file": "A Comparison of Software and Hardware Techniques for x86 Virtualization - Oct 2015 (asplos235_adams).pdf",
+      "chunks": 20,
+      "first_chunk": 3069
+    },
+    {
+      "file": "Parallel Random Numbers - As Easy as 1, 2, 3 (2011).pdf",
+      "chunks": 20,
+      "first_chunk": 3089
+    },
+    {
+      "file": "Cuckoo++ Hash Tables - High-Performance Hash Tables for Networking Applications - 2017 (1712.09624).pdf",
+      "chunks": 20,
+      "first_chunk": 3109
+    },
+    {
+      "file": "Twenty-Five Comparators is Optimal when Sorting Nine Inputs (and Twenty-Nine for Ten) (1405.5754).pdf",
+      "chunks": 20,
+      "first_chunk": 3129
+    },
+    {
+      "file": "PeachPy - A Python Framework for Developing High-Performance Assembly Kernels (2013).pdf",
+      "chunks": 20,
+      "first_chunk": 3149
+    },
+    {
+      "file": "Improving Real-Time Performance with CUDA Persistent Threads (CuPer) on the Jetson TX2 - Concurrent Real-Time White Paper (2016).pdf",
+      "chunks": 20,
+      "first_chunk": 3169
+    },
+    {
+      "file": "MSDN - Compound Synchronization Objects (July 21, 1994).pdf",
+      "chunks": 20,
+      "first_chunk": 3189
+    },
+    {
+      "file": "Tru64 - Assembly (ARH9LCTE).PDF",
+      "chunks": 18,
+      "first_chunk": 3209
+    },
+    {
+      "file": "CUDA Training Series - 10 - CUDA Multithreading with Streams (2021).pdf",
+      "chunks": 5,
+      "first_chunk": 3227
+    },
+    {
+      "file": "Overlapping Matrix Pattern Visualization - A Hypergraph Approach (2008).pdf",
+      "chunks": 20,
+      "first_chunk": 3232
+    },
+    {
+      "file": "A Compilation Target for Probabilistic Programming Languages - 2014 (paige14).pdf",
+      "chunks": 20,
+      "first_chunk": 3252
+    },
+    {
+      "file": "Generating Text with Recurrent Neural Networks - 2011 (524_icmlpaper).pdf",
+      "chunks": 20,
+      "first_chunk": 3272
+    },
+    {
+      "file": "Current Best Practices for Training LLMs from Scratch - Final (6435aabdc0a041194b243eef).pdf",
+      "chunks": 20,
+      "first_chunk": 3292
+    },
+    {
+      "file": "Hypergraph Algorithms and Applications - CS6824 - Slides  (January 22, 2014).pdf",
+      "chunks": 6,
+      "first_chunk": 3312
+    },
+    {
+      "file": "Hash Tables - Jeff Erickson (2014).pdf",
+      "chunks": 20,
+      "first_chunk": 3318
+    },
+    {
+      "file": "Information Theory for Intelligent People (2018).pdf",
+      "chunks": 20,
+      "first_chunk": 3338
+    },
+    {
+      "file": "How to miscompile programs with benign data races (Boehm).pdf",
+      "chunks": 19,
+      "first_chunk": 3358
+    },
+    {
+      "file": "System Evaluation of the Intel Optane Byte-addressable NVM - 2019 (1908.06503v1).pdf",
+      "chunks": 20,
+      "first_chunk": 3377
+    },
+    {
+      "file": "Elevated - Function 2009.pdf",
+      "chunks": 3,
+      "first_chunk": 3397
+    },
+    {
+      "file": "Proof of Concept or GTFO - v17 (30th December, 2017).pdf",
+      "chunks": 20,
+      "first_chunk": 3400
+    },
+    {
+      "file": "Efficient Implementation of Lazy Suffix Trees (gie-kur-sto-2003).pdf",
+      "chunks": 20,
+      "first_chunk": 3420
+    },
+    {
+      "file": "Distributed Component Object Model (DCOM) Remote Protocol - MS-DCOM-2015 (October 16th, 2015).pdf",
+      "chunks": 20,
+      "first_chunk": 3440
+    },
+    {
+      "file": "Bypass Control Flow Guard Comprehensively - Slides (2015).pdf",
+      "chunks": 17,
+      "first_chunk": 3460
+    },
+    {
+      "file": "FPGA Acceleration by Dynamically-Loaded Hardware Libraries - 2016 (tr16_03_Nannarelli_A).pdf",
+      "chunks": 20,
+      "first_chunk": 3477
+    },
+    {
+      "file": "Basics of Compiler Design - Anniversary Edition.pdf",
+      "chunks": 20,
+      "first_chunk": 3497
+    },
+    {
+      "file": "Highway - Intro.pdf",
+      "chunks": 3,
+      "first_chunk": 3517
+    },
+    {
+      "file": "Neural Machine Translation of Rare Words with Subword Units (1508.07909v5).pdf",
+      "chunks": 20,
+      "first_chunk": 3520
+    },
+    {
+      "file": "Introduction to Dynamic Unary Encoding (Dec 19, 2014).pdf",
+      "chunks": 20,
+      "first_chunk": 3540
+    },
+    {
+      "file": "Intel 64 and IA-32 Architectures Software Developer's Manual - Combined Volumes 1-3 - Sept 2014 (325462-052US).pdf",
+      "chunks": 20,
+      "first_chunk": 3560
+    },
+    {
+      "file": "Intel AVX-512 Instructions and Their Use in the Implementation of Math Functions - Slides (s1-cornea).pdf",
+      "chunks": 10,
+      "first_chunk": 3580
+    },
+    {
+      "file": "FLASHRELATE - Extracting Relational Data from Semi-Structured Spreadsheets Using Examples (Microsoft Research - April 2014).pdf",
+      "chunks": 20,
+      "first_chunk": 3590
+    },
+    {
+      "file": "Instruction Matrix.pdf",
+      "chunks": 5,
+      "first_chunk": 3610
+    },
+    {
+      "file": "Ownership - A Distributed Futures System for Fine-Grained Tasks - 2021 (nsdi21-wang).pdf",
+      "chunks": 20,
+      "first_chunk": 3615
+    },
+    {
+      "file": "The Continuous Linked Settlement (CLS) Foreign Exchange Settlement System.pdf",
+      "chunks": 20,
+      "first_chunk": 3635
+    },
+    {
+      "file": "Notes on Differential Equations.pdf",
+      "chunks": 18,
+      "first_chunk": 3655
+    },
+    {
+      "file": "Learning a Hidden Hypergraph - 2006 (angluin06a).pdf",
+      "chunks": 20,
+      "first_chunk": 3673
+    },
+    {
+      "file": "Applying the Proactor Pattern to High-Performance Web Servers.pdf",
+      "chunks": 20,
+      "first_chunk": 3693
+    },
+    {
+      "file": "Matchings in k-partite k-uniform Hypergraphs.pdf",
+      "chunks": 20,
+      "first_chunk": 3713
+    },
+    {
+      "file": "PageRank as a Function of the Damping Factor.pdf",
+      "chunks": 20,
+      "first_chunk": 3733
+    },
+    {
+      "file": "Everything We Know About CRC But Afraid To Forget (3rd September, 2010).pdf",
+      "chunks": 20,
+      "first_chunk": 3753
+    },
+    {
+      "file": "TelaMalloc - Efficient On-Chip Memory Allocation for Production Machine Learning Accelerators - 2023 (3567955.3567961).pdf",
+      "chunks": 20,
+      "first_chunk": 3773
+    },
+    {
+      "file": "Theory of Locality Sensitive Hashing - CS246 Stanford (Slides).pdf",
+      "chunks": 5,
+      "first_chunk": 3793
+    },
+    {
+      "file": "CUDA Training Series - 01 - Introduction to CUDA C++ (2020).pdf",
+      "chunks": 3,
+      "first_chunk": 3798
+    },
+    {
+      "file": "PCI Express Basics.pdf",
+      "chunks": 6,
+      "first_chunk": 3801
+    },
+    {
+      "file": "Improving Language Understanding by Generative Pre-Training (2018).pdf",
+      "chunks": 20,
+      "first_chunk": 3807
+    },
+    {
+      "file": "The Dataflow Model - A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing (p1792-Akidau).pdf",
+      "chunks": 20,
+      "first_chunk": 3827
+    },
+    {
+      "file": "Introduction to Parallel Architectures - Josep Torrellas - CS533 (2012).pdf",
+      "chunks": 4,
+      "first_chunk": 3847
+    },
+    {
+      "file": "DataMining-ch5.pdf",
+      "chunks": 16,
+      "first_chunk": 3851
+    },
+    {
+      "file": "Paper - B-Trees, Shadowing and Clones.pdf",
+      "chunks": 20,
+      "first_chunk": 3867
+    },
+    {
+      "file": "Intel Architecture - Instruction Set Extensions and Future Features - Programming Reference - March 2020 (319433-038).pdf",
+      "chunks": 13,
+      "first_chunk": 3887
+    }
+  ]
+}

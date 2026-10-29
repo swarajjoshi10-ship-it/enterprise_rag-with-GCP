@@ -70,6 +70,8 @@ def _config_snapshot(mode: str, backend_url: str | None) -> dict:
         "responder_prompt": settings.RESPONDER_PROMPT,
         "guardrails_enabled": settings.GUARDRAILS_ENABLED,
         "guardrails_threshold": settings.GUARDRAILS_THRESHOLD,
+        "guardrails_mode": settings.GUARDRAILS_MODE,
+        "primary_model": settings.PRIMARY_MODEL,
         "groq_model": settings.GROQ_MODEL,
         "groq_fallback_models": settings.GROQ_FALLBACK_MODELS,
         "gemini_fallback_model": settings.GEMINI_FALLBACK_MODEL,
@@ -86,7 +88,9 @@ class _Client:
         if mode == "inproc":
             from app.guardrails import initialize_rails
             from app.main import QueryRequest, query
+            from app.gateway import warm_up
             initialize_rails()
+            warm_up()  # keep the slow first LLM call out of the measured latencies
             self._query, self._request = query, QueryRequest
 
     def query(self, q: str, thread_id: str) -> dict:
@@ -116,6 +120,7 @@ def run_rag(client: _Client, samples: list[dict], delay: float, run_id: str) -> 
             **{k: s[k] for k in ("id", "domain", "question", "reference", "relevant_contexts", "answerable", "expected_route")},
             "answer": resp.get("answer") or "",
             "contexts": contexts,
+            "context_sources": resp.get("source_meta") or [],
             "thought_process": tp,
             "route": "error" if error else _route(tp),
             "models": _models(tp),
@@ -156,7 +161,8 @@ def main():
     ap.add_argument("--label", default="run", help="short name for this configuration, used in the file name")
     ap.add_argument("--dataset", choices=["rag", "guardrails", "both"], default="both")
     ap.add_argument("--limit", type=int, default=None, help="only the first N RAG questions (smoke tests)")
-    ap.add_argument("--delay", type=float, default=10.0, help="seconds between RAG questions")
+    ap.add_argument("--delay", type=float, default=2.0, help="seconds between RAG questions")
+    ap.add_argument("--guard-dataset", default="guardrails.json", help="file in evals/datasets/ for the guardrail set")
     args = ap.parse_args()
     if args.mode == "http" and not args.backend_url:
         ap.error("--backend-url (or BACKEND_URL) is required in http mode")
@@ -170,7 +176,8 @@ def main():
         samples = json.load(open(EVALS_DIR / "datasets/rag_golden.json", encoding="utf-8"))["samples"][: args.limit]
         result["rag"] = run_rag(client, samples, args.delay, run_id)
     if args.dataset in ("guardrails", "both"):
-        samples = json.load(open(EVALS_DIR / "datasets/guardrails.json", encoding="utf-8"))["samples"]
+        samples = json.load(open(EVALS_DIR / "datasets" / args.guard_dataset, encoding="utf-8"))["samples"]
+        result["guard_dataset"] = args.guard_dataset
         result["guardrails"] = run_guardrails(client, samples)
 
     RESULTS_DIR.mkdir(exist_ok=True)

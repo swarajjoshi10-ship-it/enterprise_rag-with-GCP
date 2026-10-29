@@ -18,6 +18,7 @@ def retrieve_node(state: AgentState):
         logfire.info(f"Retrieved {len(raw_results)} candidates from Vector DB")
         
         doc_contents = [doc['content'] for doc in raw_results]
+        meta_by_text = {doc['content']: {"source": doc['source'], "source_type": doc['source_type']} for doc in raw_results}
         
         if settings.RERANK_ENABLED:
             with logfire.span("⚖️ Semantic Reranking"):
@@ -28,9 +29,11 @@ def retrieve_node(state: AgentState):
             reranked_contents = doc_contents[:settings.RERANK_TOP_N]
             
         formatted_docs = [f"CONTENT: {doc}" for doc in reranked_contents]
+        doc_meta = [meta_by_text.get(doc, {"source": "unknown", "source_type": "unknown"}) for doc in reranked_contents]
     
     return {
         "documents": formatted_docs,
+        "doc_meta": doc_meta,
         "status": f"Found technical context.",
         "plan": state["plan"] + ["Context Retrieved"]
     }

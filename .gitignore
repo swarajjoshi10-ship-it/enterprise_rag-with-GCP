@@ -65,3 +65,6 @@ terraform/.terraform/
 
 # Eval scoring virtualenv
 .venv-evals/
+
+# Phase 4 noise chunk text + vectors (third-party PDFs, local only)
+evals/noise_cache/
