@@ -48,3 +48,14 @@ commands.md
 
 .logfire
 
+# --- TERRAFORM ---
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl.terraform/ 
+"*.tfstate" 
+"*.tfstate.backup" 
+.terraform/ 
+terraform/.terraform/ 
