@@ -30,12 +30,13 @@ cp terraform/terraform.tfvars.example terraform/terraform.tfvars   # then fill i
 ## 1. Stage 1: APIs, registry, build permissions
 
 Cloud Run needs container images to exist, so create the registry first.
+The quotes around each `-target` are required in Windows PowerShell, which otherwise splits the argument at the dot.
 
 ```bash
 cd terraform
 terraform init
-terraform plan -target=google_project_service.services -target=google_artifact_registry_repository.repo -target=google_project_iam_member.cloudbuild_builder
-terraform apply -target=google_project_service.services -target=google_artifact_registry_repository.repo -target=google_project_iam_member.cloudbuild_builder
+terraform plan "-target=google_project_service.services" "-target=google_artifact_registry_repository.repo" "-target=google_project_iam_member.cloudbuild_builder"
+terraform apply "-target=google_project_service.services" "-target=google_artifact_registry_repository.repo" "-target=google_project_iam_member.cloudbuild_builder"
 cd ..
 ```
 
