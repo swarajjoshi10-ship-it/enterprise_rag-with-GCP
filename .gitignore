@@ -59,3 +59,9 @@ commands.md
 "*.tfstate.backup" 
 .terraform/ 
 terraform/.terraform/ 
+
+# FastEmbed model cache (guardrails)
+.cache/
+
+# Eval scoring virtualenv
+.venv-evals/

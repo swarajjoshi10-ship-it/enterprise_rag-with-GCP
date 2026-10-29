@@ -13,3 +13,7 @@
 DATA/
 DOCS/
 terraform/
+
+# Eval tooling and results (laptop only)
+evals/
+requirements-evals.txt

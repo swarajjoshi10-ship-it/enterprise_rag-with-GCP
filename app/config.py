@@ -17,11 +17,31 @@ class Settings:
     # --- VECTOR DB (QDRANT) ---
     QDRANT_URL = os.getenv("QDRANT_CLUSTER_ENDPOINT")
     QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-    QDRANT_COLLECTION = "enterprise_rag"
+    QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "enterprise_rag")
+
+    # --- RETRIEVAL (experiment knobs) ---
+    RETRIEVAL_TOP_K = int(os.getenv("RETRIEVAL_TOP_K", "15"))   # candidates from Qdrant
+    RERANK_ENABLED = os.getenv("RERANK_ENABLED", "true").lower() == "true"
+    RERANK_TOP_N = int(os.getenv("RERANK_TOP_N", "5"))          # chunks passed to the LLM
+
+    # --- GENERATION ---
+    # "grounded": context-only answers, explicit decline, concise; "original": baseline prompt
+    RESPONDER_PROMPT = os.getenv("RESPONDER_PROMPT", "grounded").lower()
 
     # --- REASONING ENGINE (GROQ) ---
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+
+    # --- LLM GATEWAY (fallback chain) ---
+    # Each Groq model has its own free-tier quota; tried in order after GROQ_MODEL fails
+    GROQ_FALLBACK_MODELS = [m.strip() for m in os.getenv("GROQ_FALLBACK_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-20b").split(",") if m.strip()]
+    # Last resort on Vertex AI (GCP credits); set empty to disable
+    GEMINI_FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-3.5-flash-lite")
+
+    # --- GUARDRAILS (NeMo, embeddings-only: no LLM calls) ---
+    GUARDRAILS_ENABLED = os.getenv("GUARDRAILS_ENABLED", "true").lower() == "true"
+    # Minimum similarity to match a rule; below it the message passes through (fail open)
+    GUARDRAILS_THRESHOLD = float(os.getenv("GUARDRAILS_THRESHOLD", "0.5"))
 
     # --- DATABASE & CACHE ---
     DB_USER = os.getenv("DB_USER", "rag_admin")

@@ -1,14 +1,6 @@
-from langchain_groq import ChatGroq
 from app.agents.state import AgentState
-from app.config import settings
+from app.gateway import invoke_llm
 import logfire
-
-# Initialize the Groq model
-llm = ChatGroq(
-    api_key=settings.GROQ_API_KEY,
-    model=settings.GROQ_MODEL,
-    temperature=0
-)
 
 def planner_node(state: AgentState):
     """
@@ -40,18 +32,19 @@ def planner_node(state: AgentState):
     """
     
     with logfire.span("🧠 Planner Decision"):
-        decision = llm.invoke(prompt).content.strip()
+        decision, model = invoke_llm(prompt, temperature=0)
+        decision = decision.strip().strip('"').strip()
         logfire.info(f"Intent identified: {decision}")
     
-    if decision == "CONVERSATIONAL":
+    if decision.upper() == "CONVERSATIONAL":
         return {
             "current_query": "CONVERSATIONAL",
             "status": "Handling conversationally (using memory)...",
-            "plan": ["Intent: Conversational/Memory", "Retrieval: Skipped"]
+            "plan": ["Intent: Conversational/Memory", "Retrieval: Skipped", f"Planner model: {model}"]
         }
     
     return {
         "current_query": decision,
         "status": f"Technical research needed. Searching for: {decision}",
-        "plan": ["Intent: Technical", f"Search Term: {decision}"]
+        "plan": ["Intent: Technical", f"Search Term: {decision}", f"Planner model: {model}"]
     }
