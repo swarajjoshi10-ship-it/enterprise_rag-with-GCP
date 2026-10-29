@@ -1,15 +1,6 @@
 import logfire
-from langchain_groq import ChatGroq
 from app.agents.state import AgentState
-from app.config import settings
-
-
-# Initialize the Groq model
-llm = ChatGroq(
-    api_key=settings.GROQ_API_KEY,
-    model=settings.GROQ_MODEL,
-    temperature=0.1
-)
+from app.gateway import invoke_llm
 
 
 def generate_node(state: AgentState):
@@ -67,12 +58,13 @@ def generate_node(state: AgentState):
     
     with logfire.span("✍️ LLM Synthesis"):
         try:
-            response = llm.invoke(prompt)
+            answer, model = invoke_llm(prompt, temperature=0.1)
             logfire.info("Response synthesized successfully.")
             return {
-                "final_answer": response.content,
+                "final_answer": answer,
                 "status": "Response generated.",
-                "messages": [{"role": "assistant", "content": response.content}]
+                "plan": state["plan"] + [f"Responder model: {model}"],
+                "messages": [{"role": "assistant", "content": answer}]
             }
         except Exception as e:
             logfire.error(f"LLM Generation failed: {e}")

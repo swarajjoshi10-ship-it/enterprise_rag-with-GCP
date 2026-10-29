@@ -35,7 +35,8 @@ langchain                   # Core LLM orchestration
 langgraph                   # State-machine logic for cyclic agent flows
 langgraph-checkpoint-postgres # Persistent memory for LangGraph using PostgreSQL
 langchain-google-vertexai   # Integration for Google LLMs/Embeddings
-langchain-groq              # Integration for lightning-fast Llama 3.3 models
+langchain-groq              # Groq chat models (primary + fallbacks via app/gateway)
+nemoguardrails==0.24.1      # Guardrails gate (embeddings-only intent matching, no LLM calls)
 langchain-community         # Community-contributed tools and loaders
 langchain-openai            # (Optional) OpenAI compatibility layer
 pydantic>=2.0.0             # Data validation and settings management

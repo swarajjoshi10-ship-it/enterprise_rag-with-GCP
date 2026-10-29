@@ -10,15 +10,27 @@ load_dotenv()
 logfire.configure(token=os.getenv("LOGFIRE_TOKEN"), send_to_logfire="if-token-present")
 
 # Now safe to import app modules - logfire is already active
+import asyncio
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Response
 from app.agents.graph import rag_agent
+from app.guardrails import guard, initialize_rails
 from app.services.gcp.redis_semantic_cache import check_cache, update_cache
 
 from pydantic import BaseModel
 from typing import Optional
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the guardrails embedding index once, before serving traffic.
+    # In a worker thread: NeMo's sync generate() refuses to run inside the event loop.
+    await asyncio.to_thread(initialize_rails)
+    yield
+
+
 # Initialize FastAPI
-app = FastAPI(title="Enterprise Agentic RAG API")
+app = FastAPI(title="Enterprise Agentic RAG API", lifespan=lifespan)
 
 class QueryRequest(BaseModel):
     q: str
@@ -66,6 +78,17 @@ def query(request: QueryRequest):
     config = {"configurable": {"thread_id": thread_id}}
     
     try:
+        # 0. Gate 1: Guardrails (NeMo, embeddings-only) - blocks jailbreaks / off-topic
+        blocked, rail_response, rail = guard(q)
+        if blocked:
+            return {
+                "question": q,
+                "answer": rail_response,
+                "thought_process": ["Intent: Guardrails Fired", f"Rail: {rail}", "Retrieval: Skipped"],
+                "status": "Blocked by guardrails.",
+                "sources": []
+            }
+
         # 1. Check Semantic Cache first (Redis)
         cached_response = check_cache(q)
         if cached_response:
