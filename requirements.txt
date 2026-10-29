@@ -5,6 +5,7 @@
 # --- CORE API & WEB FRAMEWORK ---
 fastapi                     # High-performance web framework for the API
 uvicorn[standard]           # ASGI server to run the FastAPI app
+python-multipart            # Required for FastAPI to handle all request types
 python-dotenv               # For loading configuration from .env files
 requests                    # HTTP library for internal/external API calls
 streamlit                   # Frontend dashboard for the chat interface
@@ -14,7 +15,7 @@ nest-asyncio                # Support for nested async loops in notebooks/stream
 
 # --- GOOGLE CLOUD PLATFORM (GCP) ---
 google-cloud-storage        # GCS for Raw and Processed file storage
-google-cloud-aiplatform     # Vertex AI (Embeddings)
+google-cloud-aiplatform     # Vertex AI (Embeddings & Ranking)
 google-cloud-discoveryengine # Vertex AI Search services
 google-cloud-documentai     # OCR & PDF Parsing via Cloud API (Replaced heavy local parsing)
 cloud-sql-python-connector  # Secure connection to Cloud SQL (Postgres)
@@ -23,12 +24,16 @@ cloud-sql-python-connector  # Secure connection to Cloud SQL (Postgres)
 qdrant-client               # Vector Database for semantic search
 flashrank                   # Ultra-fast local cross-encoder for semantic reranking
 redis                       # Memorystore for semantic caching
+redisvl                     # Python client for Redis Vector Library (Semantic Cache)
 sqlalchemy                  # ORM for persistent conversation history
 pg8000                      # Postgres driver for Cloud SQL
+psycopg[binary]             # Required driver for langgraph-checkpoint-postgres
+psycopg_pool                # Connection pooling for high-concurrency memory
 
 # --- LANGCHAIN & AGENTIC ORCHESTRATION ---
 langchain                   # Core LLM orchestration
 langgraph                   # State-machine logic for cyclic agent flows
+langgraph-checkpoint-postgres # Persistent memory for LangGraph using PostgreSQL
 langchain-google-vertexai   # Integration for Google LLMs/Embeddings
 langchain-groq              # Integration for lightning-fast Llama 3.3 models
 langchain-community         # Community-contributed tools and loaders

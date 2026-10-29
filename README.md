@@ -76,19 +76,25 @@ All detailed guides are located in the [DOCS/](DOCS/) folder:
 
 ## 🛠️ Getting Started
 
-1.  **Clone & Install**:
+1.  **Clone & Install** (Python 3.11):
     ```bash
-    pip install -r requirements.txt
+    uv venv --python 3.11 .venv
+    uv pip install --python .venv/Scripts/python.exe -r requirements.txt
     ```
 2.  **Configure**:
-    Copy `commands.md.example` to `commands.md` and fill in your keys.
-3.  **Run Ingestion**:
+    Copy `.env.example` to `.env` and fill in your own keys (Groq, Qdrant Cloud, GCP project ID).
+    Keep `LOCAL_MODE=true` to run without Cloud SQL and Redis. Vertex AI embeddings use your gcloud login:
     ```bash
-    python -m app.ingestion.processor DATA --wipe
+    gcloud auth application-default login
     ```
-4.  **Launch App**:
+3.  **Run Ingestion** (GCS upload errors are expected locally if the buckets don't exist yet):
     ```bash
-    uvicorn app.main:app --port 8000 & streamlit run ui/app.py
+    .venv/Scripts/python.exe -m app.ingestion.processor DATA/true_data --wipe
+    ```
+4.  **Launch App** (two terminals):
+    ```bash
+    .venv/Scripts/python.exe -m uvicorn app.main:app --port 8000
+    .venv/Scripts/python.exe -m streamlit run ui/app.py
     ```
 
 ---
