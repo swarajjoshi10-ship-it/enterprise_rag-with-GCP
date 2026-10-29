@@ -209,7 +209,9 @@ async def main_async(path: Path):
     csv_path = path.parent / "summary.csv"
     row = {"run_id": run["run_id"], "label": run["label"], "git_commit": run.get("git_commit"),
            "collection": run["config"].get("qdrant_collection"), "rerank": run["config"].get("rerank_enabled"),
-           "guardrails": run["config"].get("guardrails_enabled"), **summary,
+           "guardrails": run["config"].get("guardrails_enabled"),
+           # Runs before the setting existed used the original prompt
+           "responder_prompt": run["config"].get("responder_prompt", "original"), **summary,
            "judge_model": JUDGE_MODEL, "judge_prompt_tokens": counter.prompt_tokens, "judge_output_tokens": counter.output_tokens}
     existing = list(csv.DictReader(open(csv_path, encoding="utf-8"))) if csv_path.exists() else []
     existing = [r for r in existing if r["run_id"] != row["run_id"]] + [row]

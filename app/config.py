@@ -24,6 +24,10 @@ class Settings:
     RERANK_ENABLED = os.getenv("RERANK_ENABLED", "true").lower() == "true"
     RERANK_TOP_N = int(os.getenv("RERANK_TOP_N", "5"))          # chunks passed to the LLM
 
+    # --- GENERATION ---
+    # "grounded": context-only answers, explicit decline, concise; "original": baseline prompt
+    RESPONDER_PROMPT = os.getenv("RESPONDER_PROMPT", "grounded").lower()
+
     # --- REASONING ENGINE (GROQ) ---
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")

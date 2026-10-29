@@ -67,6 +67,7 @@ def _config_snapshot(mode: str, backend_url: str | None) -> dict:
         "retrieval_top_k": settings.RETRIEVAL_TOP_K,
         "rerank_enabled": settings.RERANK_ENABLED,
         "rerank_top_n": settings.RERANK_TOP_N,
+        "responder_prompt": settings.RESPONDER_PROMPT,
         "guardrails_enabled": settings.GUARDRAILS_ENABLED,
         "guardrails_threshold": settings.GUARDRAILS_THRESHOLD,
         "groq_model": settings.GROQ_MODEL,

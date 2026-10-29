@@ -1,6 +1,9 @@
 import logfire
 from app.agents.state import AgentState
+from app.config import settings
 from app.gateway import invoke_llm
+
+DECLINE_MESSAGE = "The provided documentation does not cover this."
 
 
 def generate_node(state: AgentState):
@@ -42,16 +45,43 @@ def generate_node(state: AgentState):
                 logfire.warning("Context truncated to fit Groq TPM limits.")
                 break
 
-        prompt = f"""
-        You are a Senior Technical Architect. 
-        Answer the question using the TECHNICAL CONTEXT provided. 
-        
+        if settings.RESPONDER_PROMPT == "original":
+            # Baseline prompt (kept for before/after evaluation)
+            prompt = f"""
+        You are a Senior Technical Architect.
+        Answer the question using the TECHNICAL CONTEXT provided.
+
         TECHNICAL CONTEXT:
         {full_context}
-        
+
         CONVERSATION HISTORY:
         {history_str}
-        
+
+        USER QUESTION:
+        "{user_msg}"
+        """
+        else:
+            # Grounded prompt: only facts from the context, decline otherwise, stay concise
+            prompt = f"""
+        You are a documentation assistant for an internal Kubernetes knowledge base.
+
+        Rules:
+        1. Answer ONLY with information stated in the TECHNICAL CONTEXT below. Do not add facts,
+           numbers, commands, best practices or examples from your own knowledge.
+        2. If the context does not contain the answer, reply exactly:
+           "{DECLINE_MESSAGE}"
+           and nothing else.
+        3. If the context answers only part of the question, answer that part and say which part
+           the documentation does not cover.
+        4. Be concise: a few sentences, or a short list for steps. Quote commands and YAML
+           exactly as they appear in the context.
+
+        TECHNICAL CONTEXT:
+        {full_context}
+
+        CONVERSATION HISTORY:
+        {history_str}
+
         USER QUESTION:
         "{user_msg}"
         """
