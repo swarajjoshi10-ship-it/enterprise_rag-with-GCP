@@ -1,0 +1,15 @@
+# Files NOT uploaded by `gcloud builds submit` (keeps secrets and bulk out of the build)
+.gcloudignore
+.git
+.gitignore
+#!include:.gitignore
+
+# Secrets (also in .gitignore, listed explicitly to be safe)
+.env
+*.tfvars
+*.tfstate*
+
+# Not needed in the images
+DATA/
+DOCS/
+terraform/

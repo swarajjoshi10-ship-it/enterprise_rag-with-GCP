@@ -1,0 +1,21 @@
+# Copy to terraform.tfvars (gitignored) and fill in. Never commit terraform.tfvars.
+project_id = "enterprise-rag-499816"
+region     = "us-central1"
+
+# Cost controls
+enable_redis  = false   # true adds Memorystore Redis 7.2 (~$36/month) for the semantic cache
+max_instances = 2
+pdf_parser    = "pypdf" # "docai" = Document AI OCR, ~$1.50 per 1,000 pages
+
+# External services (free tiers)
+qdrant_url     = "https://xxxx.cloud.qdrant.io:6333"
+qdrant_api_key = ""
+groq_api_key   = ""
+groq_model     = "openai/gpt-oss-120b"
+
+# Cloud SQL password: pick a long random one
+db_password = ""
+
+# Optional observability (leave empty to disable)
+logfire_token     = ""
+langsmith_api_key = ""

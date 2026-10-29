@@ -113,7 +113,9 @@ def process_file(file_path: str, filename: str, source_type: str, skip_raw_uploa
                 points = []
                 for i, (chunk, vector) in enumerate(zip(chunks, embeddings)):
                     points.append(models.PointStruct(
-                        id=str(uuid.uuid4()),
+                        # Deterministic ID: Eventarc delivers at least once, so a
+                        # repeated event overwrites the same points instead of duplicating
+                        id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{raw_gcs_path}#{i}")),
                         vector=vector,
                         payload={
                             "text": chunk,

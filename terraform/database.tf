@@ -6,18 +6,18 @@ resource "google_sql_database_instance" "postgres" {
   region           = var.region
 
   settings {
-    tier = "db-f1-micro" # Smallest tier to keep costs low during dev
-    
+    tier    = "db-f1-micro" # Smallest tier to keep costs low during dev
+    edition = "ENTERPRISE"
+
     ip_configuration {
-      ipv4_enabled    = true
-      # This allows Cloud Run to connect securely
-      authorized_networks {
-        name  = "all"
-        value = "0.0.0.0/0" 
-      }
+      # Public IP with NO authorized networks: only the Cloud SQL connector
+      # (used by Cloud Run's /cloudsql socket, IAM-authorized) can reach it
+      ipv4_enabled = true
     }
   }
   deletion_protection = false # Set to true for production!
+
+  depends_on = [google_project_service.services]
 }
 
 resource "google_sql_database" "database" {

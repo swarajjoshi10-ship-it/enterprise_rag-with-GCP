@@ -8,26 +8,30 @@ resource "google_cloud_run_v2_service" "ingestion" {
 
   template {
     service_account = google_service_account.ingestion_sa.email
-    
-    volumes {
-      name = "cloudsql"
-      cloud_sql_instance {
-        instances = [google_sql_database_instance.postgres.connection_name]
-      }
+
+    scaling {
+      max_instance_count = 3
     }
 
     containers {
       image = "${var.region}-docker.pkg.dev/${var.project_id}/${var.app_name}-repo/ingestion:latest"
-      
-      volume_mounts {
-        name       = "cloudsql"
-        mount_path = "/cloudsql"
-      }
-      
+
       resources {
         limits = {
           cpu    = "1"
           memory = "2Gi"
+        }
+        startup_cpu_boost = true  # extra CPU while heavy libraries (Vertex AI) load
+        cpu_idle          = false # keep CPU after responding: Eventarc requests return 'accepted' and parsing continues in a background task
+      }
+
+      # Allow up to 5 min to start: the first start of a new image is slow
+      startup_probe {
+        period_seconds    = 10
+        timeout_seconds   = 5
+        failure_threshold = 30
+        tcp_socket {
+          port = 8080
         }
       }
 
@@ -36,16 +40,12 @@ resource "google_cloud_run_v2_service" "ingestion" {
         value = var.qdrant_url
       }
       env {
-        name  = "QDRANT_API_KEY"
-        value = var.qdrant_api_key
-      }
-      env {
-        name  = "DB_CONNECTION_NAME"
-        value = google_sql_database_instance.postgres.connection_name
-      }
-      env {
         name  = "PROJECT_ID"
         value = var.project_id
+      }
+      env {
+        name  = "LOCATION"
+        value = var.region
       }
       env {
         name  = "GCP_RAW_BUCKET"
@@ -56,16 +56,20 @@ resource "google_cloud_run_v2_service" "ingestion" {
         value = google_storage_bucket.processed_data.name
       }
       env {
-        name  = "LOGFIRE_TOKEN"
-        value = var.logfire_token
+        name  = "PDF_PARSER"
+        value = var.pdf_parser
+      }
+      env {
+        name  = "GCP_DOC_AI_PROCESSOR_ID"
+        value = reverse(split("/", google_document_ai_processor.ocr.name))[0]
+      }
+      env {
+        name  = "GCP_DOC_AI_LOCATION"
+        value = google_document_ai_processor.ocr.location
       }
       env {
         name  = "LANGSMITH_TRACING"
-        value = "true"
-      }
-      env {
-        name  = "LANGSMITH_API_KEY"
-        value = var.langsmith_api_key
+        value = local.langsmith_tracing
       }
       env {
         name  = "LANGSMITH_PROJECT"
@@ -75,16 +79,26 @@ resource "google_cloud_run_v2_service" "ingestion" {
         name  = "LANGSMITH_ENDPOINT"
         value = "https://api.smith.langchain.com"
       }
-      env {
-        name  = "GCP_DOC_AI_PROCESSOR_ID"
-        value = var.doc_ai_processor_id
-      }
-      env {
-        name  = "GCP_DOC_AI_LOCATION"
-        value = "us" # Document AI is usually 'us' or 'eu'
+      dynamic "env" {
+        for_each = local.ingestion_secret_env
+        content {
+          name = env.key
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.app[env.value].secret_id
+              version = "latest"
+            }
+          }
+        }
       }
     }
   }
+
+  depends_on = [
+    google_secret_manager_secret_version.app,
+    google_secret_manager_secret_iam_member.access,
+    google_project_iam_member.ingestion_roles
+  ]
 }
 
 
@@ -93,7 +107,7 @@ resource "google_cloud_run_v2_service" "ingestion" {
 resource "google_eventarc_trigger" "gcs_trigger" {
   name     = "rag-gcs-trigger"
   location = var.region
-  
+
   matching_criteria {
     attribute = "type"
     value     = "google.cloud.storage.object.v1.finalized"
@@ -119,5 +133,3 @@ resource "google_eventarc_trigger" "gcs_trigger" {
     google_project_iam_member.eventarc_service_agent
   ]
 }
-
-
