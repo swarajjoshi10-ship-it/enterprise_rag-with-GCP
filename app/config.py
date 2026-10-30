@@ -33,15 +33,28 @@ class Settings:
     GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
     # --- LLM GATEWAY (fallback chain) ---
+    # Primary: open model served by Vertex AI (GCP credits, no daily cap); set empty to start at Groq
+    VERTEX_MODEL = os.getenv("VERTEX_MODEL", "openai/gpt-oss-120b-maas")
+    # us-central1: median ~1.3 s vs ~19 s on "global" in testing; both occasionally queue for ~70 s
+    VERTEX_MAAS_LOCATION = os.getenv("VERTEX_MAAS_LOCATION", "us-central1")
+    # Cut queueing spikes short and fall back (to the same model on Groq) instead of waiting
+    VERTEX_TIMEOUT_S = float(os.getenv("VERTEX_TIMEOUT_S", "20"))
     # Each Groq model has its own free-tier quota; tried in order after GROQ_MODEL fails
     GROQ_FALLBACK_MODELS = [m.strip() for m in os.getenv("GROQ_FALLBACK_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-20b").split(",") if m.strip()]
     # Last resort on Vertex AI (GCP credits); set empty to disable
     GEMINI_FALLBACK_MODEL = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-3.5-flash-lite")
+    # First model in the chain; answers from any other model count as fallbacks
+    PRIMARY_MODEL = VERTEX_MODEL or GROQ_MODEL
 
     # --- GUARDRAILS (NeMo, embeddings-only: no LLM calls) ---
     GUARDRAILS_ENABLED = os.getenv("GUARDRAILS_ENABLED", "true").lower() == "true"
     # Minimum similarity to match a rule; below it the message passes through (fail open)
     GUARDRAILS_THRESHOLD = float(os.getenv("GUARDRAILS_THRESHOLD", "0.5"))
+    # embeddings | promptguard | safeguard | layered (see app/guardrails/rails.py)
+    GUARDRAILS_MODE = os.getenv("GUARDRAILS_MODE", "embeddings").lower()
+    PROMPT_GUARD_MODEL = os.getenv("PROMPT_GUARD_MODEL", "meta-llama/llama-prompt-guard-2-86m")
+    PROMPT_GUARD_THRESHOLD = float(os.getenv("PROMPT_GUARD_THRESHOLD", "0.5"))
+    SAFEGUARD_MODEL = os.getenv("SAFEGUARD_MODEL", "openai/gpt-oss-safeguard-20b")
 
     # --- DATABASE & CACHE ---
     DB_USER = os.getenv("DB_USER", "rag_admin")

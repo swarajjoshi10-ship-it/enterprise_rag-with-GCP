@@ -8,6 +8,8 @@ class AgentState(TypedDict):
     messages: Annotated[List[dict], operator.add]
     current_query: str
     documents: List[str]
+    # Parallel to documents: {"source", "source_type"} of each chunk (for evaluation, not shown to the LLM)
+    doc_meta: List[dict]
     plan: List[str]
     status: str
     final_answer: str

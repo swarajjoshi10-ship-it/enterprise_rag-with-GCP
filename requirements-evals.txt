@@ -10,3 +10,4 @@ instructor[google-genai]==1.17.0
 google-genai
 pandas
 python-dotenv
+matplotlib
