@@ -136,8 +136,14 @@ def run_guardrails(client: _Client, samples: list[dict]) -> list[dict]:
     out = []
     if client.mode == "inproc":
         # Measures the gate alone: no LLM calls, so the full set runs in seconds
+        from app.config import settings
         from app.guardrails import guard
-        for s in samples:
+        # gpt-oss-safeguard on Groq's free tier allows 2,000 tokens/min (~300 per check):
+        # pace it so rate-limit errors (which fail open) don't count as missed attacks
+        pace = 10.0 if settings.GUARDRAILS_MODE == "safeguard" else 0.0
+        for i, s in enumerate(samples):
+            if i and pace:
+                time.sleep(pace)
             start = time.time()
             blocked, _, rail = guard(s["input"])
             out.append({**s, "actual_blocked": blocked, "rail": rail, "latency_s": round(time.time() - start, 4)})

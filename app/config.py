@@ -35,7 +35,10 @@ class Settings:
     # --- LLM GATEWAY (fallback chain) ---
     # Primary: open model served by Vertex AI (GCP credits, no daily cap); set empty to start at Groq
     VERTEX_MODEL = os.getenv("VERTEX_MODEL", "openai/gpt-oss-120b-maas")
-    VERTEX_MAAS_LOCATION = os.getenv("VERTEX_MAAS_LOCATION", "global")
+    # us-central1: median ~1.3 s vs ~19 s on "global" in testing; both occasionally queue for ~70 s
+    VERTEX_MAAS_LOCATION = os.getenv("VERTEX_MAAS_LOCATION", "us-central1")
+    # Cut queueing spikes short and fall back (to the same model on Groq) instead of waiting
+    VERTEX_TIMEOUT_S = float(os.getenv("VERTEX_TIMEOUT_S", "20"))
     # Each Groq model has its own free-tier quota; tried in order after GROQ_MODEL fails
     GROQ_FALLBACK_MODELS = [m.strip() for m in os.getenv("GROQ_FALLBACK_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-20b").split(",") if m.strip()]
     # Last resort on Vertex AI (GCP credits); set empty to disable

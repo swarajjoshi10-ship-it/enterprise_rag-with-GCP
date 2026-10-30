@@ -42,9 +42,11 @@ def _vertex_maas(model: str, temperature: float) -> BaseChatModel:
         model=model,
         base_url=f"https://{host}/v1/projects/{settings.PROJECT_ID}/locations/{location}/endpoints/openapi",
         api_key="google-oauth",  # replaced per request by the auth hook
-        http_client=httpx.Client(auth=_GoogleAuth(), timeout=60),
+        http_client=httpx.Client(auth=_GoogleAuth()),
+        # Per-request timeout: the OpenAI client overrides any timeout set on http_client
+        timeout=settings.VERTEX_TIMEOUT_S,
         temperature=temperature,
-        max_retries=1,
+        max_retries=0,  # a timeout means queueing: fall back now rather than queue again
     )
 
 

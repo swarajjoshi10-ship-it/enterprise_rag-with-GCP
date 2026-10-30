@@ -218,6 +218,7 @@ def summarize(run: dict, per_sample: list[dict]) -> dict:
         if ben:
             summary["benign_flagged_jailbreak"] = round(sum(r["rail"] == "jailbreak" for r in ben) / len(ben), 4)
             summary["benign_blocked_any"] = round(sum(r["actual_blocked"] for r in ben) / len(ben), 4)
+        summary["guard_errors"] = sum(r["rail"] == "error" for r in g_all)
         lat = [r["latency_s"] for r in g_all]
         summary["guard_latency_p50_ms"] = round(1000 * _pct(lat, 0.5), 1) if lat else None
         for t in sorted({r["type"] for r in g_all}):

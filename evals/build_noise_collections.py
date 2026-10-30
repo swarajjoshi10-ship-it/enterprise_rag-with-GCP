@@ -105,12 +105,15 @@ def cmd_build(args):
     vectors = [json.loads(line)["vector"] for line in open(VECTORS_FILE, encoding="utf-8")] if VECTORS_FILE.exists() else []
     if len(vectors) < len(chunks):
         with open(VECTORS_FILE, "a", encoding="utf-8") as out:
-            for start in range(len(vectors), len(chunks), 250):
-                batch = chunks[start:start + 250]
+            # 10 per request: Vertex caps a request at 20k tokens, and code/math-heavy
+            # noise chunks are token-dense (50 chunks reached 23k)
+            for start in range(len(vectors), len(chunks), 10):
+                batch = chunks[start:start + 10]
                 for v in embed_texts([c["text"] for c in batch]):
                     out.write(json.dumps({"vector": v}) + "\n")
                     vectors.append(v)
-                print(f"embedded {len(vectors)}/{len(chunks)}", flush=True)
+                if len(vectors) % 250 == 0 or len(vectors) == len(chunks):
+                    print(f"embedded {len(vectors)}/{len(chunks)}", flush=True)
 
     client = QdrantClient(url=settings.QDRANT_URL, api_key=settings.QDRANT_API_KEY, timeout=120)
 
