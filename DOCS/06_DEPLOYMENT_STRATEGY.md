@@ -9,7 +9,7 @@ We use **Google Cloud Build** to convert our source code into a secure, producti
 
 ### Process:
 1.  **Submission**: Run `gcloud builds submit`.
-2.  **Packaging**: Cloud Build reads the `Dockerfile`, installs `requirements.txt`, and packages the app.
+2.  **Packaging**: Cloud Build reads the three files in `docker/` (backend, UI, ingestion), installs `requirements.txt`, and packages the app.
 3.  **Storage**: The resulting image is pushed to **Artifact Registry**.
 
 ---
