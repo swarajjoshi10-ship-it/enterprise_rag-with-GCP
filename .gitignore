@@ -68,3 +68,6 @@ terraform/.terraform/
 
 # Phase 4 noise chunk text + vectors (third-party PDFs, local only)
 evals/noise_cache/
+
+# Noise-corpus PDFs (third-party material): keep local, pass with --noise-dir
+DATA/noisy_data/
