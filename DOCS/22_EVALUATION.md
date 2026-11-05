@@ -40,7 +40,8 @@ Experiment knobs are env vars read by the app (`app/config.py`) and recorded in 
 | `QDRANT_COLLECTION` | `enterprise_rag` | Point at a noise-level collection |
 | `RERANK_ENABLED` | `true` | FlashRank on/off |
 | `RETRIEVAL_TOP_K` / `RERANK_TOP_N` | `15` / `5` | Candidates / chunks given to the LLM |
-| `GUARDRAILS_ENABLED` / `GUARDRAILS_THRESHOLD` | `true` / `0.5` | Gate on/off, similarity threshold |
+| `RERANK_KEEP_DENSE` | `2` | Top dense hits always kept among the chunks (`0` = pure re-ranking, used in the Phase 4 runs) |
+| `GUARDRAILS_ENABLED` / `GUARDRAILS_THRESHOLD` | `true` / `0.45` | Gate on/off, similarity threshold |
 | `GROQ_MODEL`, `GROQ_FALLBACK_MODELS`, `GEMINI_FALLBACK_MODEL` | see `.env.example` | Gateway chain |
 
 Example ablation: `RERANK_ENABLED=false .venv/Scripts/python.exe -m evals.run_pipeline --label no-rerank --dataset rag`

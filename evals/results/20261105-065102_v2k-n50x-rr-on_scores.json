@@ -1,0 +1,269 @@
+{
+  "run_id": "20261105-065102",
+  "label": "v2k-n50x-rr-on",
+  "config": {
+    "mode": "inproc",
+    "qdrant_collection": "exp_noise_50x",
+    "retrieval_top_k": 15,
+    "rerank_enabled": true,
+    "rerank_top_n": 5,
+    "responder_prompt": "complete",
+    "guardrails_enabled": false,
+    "guardrails_threshold": 0.45,
+    "guardrails_mode": "embeddings",
+    "primary_model": "openai/gpt-oss-120b-maas",
+    "groq_model": "openai/gpt-oss-120b",
+    "groq_fallback_models": [
+      "qwen/qwen3.8-27b",
+      "openai/gpt-oss-20b"
+    ],
+    "gemini_fallback_model": "gemini-3.5-flash-lite",
+    "pdf_parser": "pypdf"
+  },
+  "git_commit": "651fa7e",
+  "judge": {
+    "model": "gemini-3.5-flash-lite",
+    "calls": 278,
+    "prompt_tokens": 346827,
+    "output_tokens": 30933,
+    "seconds": 109.3
+  },
+  "summary": {
+    "faithfulness": 0.9216,
+    "answer_relevancy": 0.8488,
+    "context_precision": 0.7522,
+    "context_recall": 0.9608,
+    "answer_correctness": 0.6718,
+    "abstention_rate": 0.6667,
+    "hit_at_k": 1.0,
+    "noise_intrusion": 0.0316,
+    "route_accuracy": 0.7917,
+    "pipeline_errors": 0,
+    "latency_p50_s": 42.19,
+    "latency_p95_s": 90.37,
+    "fallback_rate": 0.75
+  },
+  "per_sample": [
+    {
+      "id": "R01",
+      "scores": {
+        "faithfulness": 1.0,
+        "context_recall": 1.0,
+        "context_precision": 0.7,
+        "answer_correctness": 0.9903,
+        "answer_relevancy": 0.9692
+      }
+    },
+    {
+      "id": "R02",
+      "scores": {
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.0,
+        "context_recall": 1.0,
+        "answer_correctness": 0.083,
+        "context_precision": 0.0
+      }
+    },
+    {
+      "id": "R03",
+      "scores": {
+        "answer_relevancy": 1.0,
+        "faithfulness": 1.0,
+        "context_recall": 1.0,
+        "answer_correctness": 0.6042,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R04",
+      "scores": {
+        "faithfulness": 1.0,
+        "context_recall": 1.0,
+        "answer_relevancy": 0.6647,
+        "context_precision": 0.3333,
+        "answer_correctness": 0.3146
+      }
+    },
+    {
+      "id": "R05",
+      "scores": {
+        "faithfulness": 1.0,
+        "context_recall": 1.0,
+        "answer_relevancy": 0.8929,
+        "context_precision": 0.5,
+        "answer_correctness": 0.6662
+      }
+    },
+    {
+      "id": "R06",
+      "scores": {
+        "faithfulness": 1.0,
+        "context_recall": 1.0,
+        "answer_relevancy": 0.8596,
+        "answer_correctness": 0.9897,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R07",
+      "scores": {
+        "answer_relevancy": 0.9211,
+        "answer_correctness": 0.2768
+      }
+    },
+    {
+      "id": "R08",
+      "scores": {
+        "answer_relevancy": 0.9902,
+        "answer_correctness": 0.2515
+      }
+    },
+    {
+      "id": "R09",
+      "scores": {
+        "answer_relevancy": 0.9446,
+        "answer_correctness": 0.512
+      }
+    },
+    {
+      "id": "R10",
+      "scores": {
+        "faithfulness": 1.0,
+        "context_recall": 1.0,
+        "answer_relevancy": 0.9638,
+        "answer_correctness": 0.7262,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R11",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9393,
+        "context_recall": 1.0,
+        "answer_correctness": 0.9859,
+        "context_precision": 0.25
+      }
+    },
+    {
+      "id": "R12",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.8933,
+        "context_recall": 1.0,
+        "answer_correctness": 0.6945,
+        "context_precision": 0.8042
+      }
+    },
+    {
+      "id": "R13",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9298,
+        "context_recall": 1.0,
+        "answer_correctness": 0.8731,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R14",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.832,
+        "context_recall": 0.6667,
+        "answer_correctness": 0.5734,
+        "context_precision": 0.75
+      }
+    },
+    {
+      "id": "R15",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9981,
+        "context_recall": 0.6667,
+        "answer_correctness": 0.7814,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R16",
+      "scores": {
+        "faithfulness": 0.6667,
+        "answer_relevancy": 0.902,
+        "context_recall": 1.0,
+        "answer_correctness": 0.9762,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R17",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9699,
+        "context_recall": 1.0,
+        "answer_correctness": 0.994,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R18",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9957,
+        "context_recall": 1.0,
+        "answer_correctness": 0.9864,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R19",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7801,
+        "context_recall": 1.0,
+        "answer_correctness": 0.9816,
+        "context_precision": 1.0
+      }
+    },
+    {
+      "id": "R20",
+      "scores": {
+        "answer_relevancy": 0.7659,
+        "answer_correctness": 0.1814
+      }
+    },
+    {
+      "id": "R21",
+      "scores": {
+        "answer_relevancy": 0.6117,
+        "faithfulness": 1.0,
+        "context_recall": 1.0,
+        "answer_correctness": 0.6646,
+        "context_precision": 0.45
+      }
+    },
+    {
+      "id": "R22",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.0,
+        "abstained": true
+      }
+    },
+    {
+      "id": "R23",
+      "scores": {
+        "answer_relevancy": 0.8825,
+        "abstained": false
+      }
+    },
+    {
+      "id": "R24",
+      "scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.0,
+        "abstained": true
+      }
+    }
+  ]
+}

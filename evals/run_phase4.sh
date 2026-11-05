@@ -23,7 +23,8 @@ score_latest() {
 
 rag_run() {  # label collection rerank
   echo "=== RAG $1 ($2, rerank=$3) $(date +%H:%M:%S)"
-  QDRANT_COLLECTION=$2 RERANK_ENABLED=$3 GUARDRAILS_ENABLED=false \
+  # Phase 4 setup, pinned so later defaults (v2 prompt, dense-pinned re-ranking) do not change it
+  QDRANT_COLLECTION=$2 RERANK_ENABLED=$3 RERANK_KEEP_DENSE=0 RESPONDER_PROMPT=grounded GUARDRAILS_ENABLED=false \
     "$APP_PY" -X utf8 -m evals.run_pipeline --label "$1" --dataset rag | grep -aE '^\[|Saved' | tail -3 \
     || echo "!! run failed: $1"
   score_latest "$1"
