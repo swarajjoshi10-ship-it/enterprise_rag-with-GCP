@@ -1,6 +1,8 @@
+import time
+
 import logfire
 from langchain_core.language_models import BaseChatModel
-from langchain_core.runnables import Runnable
+from langchain_core.runnables import Runnable, RunnableLambda
 from langchain_groq import ChatGroq
 
 from app.config import settings
@@ -11,6 +13,8 @@ from app.config import settings
 #   2. Groq models (settings.GROQ_MODEL, then settings.GROQ_FALLBACK_MODELS): free tier,
 #      each model with its own quota, so a 429 on one does not block the others
 #   3. Optional last resort: Gemini on Vertex AI (settings.GEMINI_FALLBACK_MODEL)
+# The primary model's providers (1 and the GROQ_MODEL in 2) are retried in rounds before
+# any weaker model is used.
 
 _cache: dict[float, Runnable] = {}
 
@@ -75,21 +79,51 @@ def _gemini(model: str, temperature: float) -> BaseChatModel:
     )
 
 
-def _chain(temperature: float) -> list[BaseChatModel]:
-    models = []
+def _chain(temperature: float) -> tuple[list[BaseChatModel], list[BaseChatModel]]:
+    """(primary tier, fallback tier): the primary model on each provider, then the weaker models."""
+    primary = []
     if settings.VERTEX_MODEL:
-        models.append(_vertex_maas(settings.VERTEX_MODEL, temperature))
-    models += [_groq(m, temperature) for m in [settings.GROQ_MODEL, *settings.GROQ_FALLBACK_MODELS] if m]
+        primary.append(_vertex_maas(settings.VERTEX_MODEL, temperature))
+    if settings.GROQ_MODEL:
+        primary.append(_groq(settings.GROQ_MODEL, temperature))
+    fallbacks = [_groq(m, temperature) for m in settings.GROQ_FALLBACK_MODELS]
     if settings.GEMINI_FALLBACK_MODEL:
-        models.append(_gemini(settings.GEMINI_FALLBACK_MODEL, temperature))
-    return models
+        fallbacks.append(_gemini(settings.GEMINI_FALLBACK_MODEL, temperature))
+    return primary, fallbacks
+
+
+def _primary_rounds(models: list[BaseChatModel]) -> Runnable:
+    """
+    Tries every provider of the primary model, up to PRIMARY_ROUNDS times with a growing pause.
+    Rate limits are per minute, so waiting a few seconds usually keeps the answer on the
+    primary model instead of handing it to a weaker one (which scored lower in evaluation).
+    """
+
+    def call(prompt):
+        last_error = None
+        for round_no in range(settings.PRIMARY_ROUNDS):
+            if round_no:
+                wait = settings.PRIMARY_BACKOFF_S * round_no
+                logfire.warning(f"⏳ Primary model unavailable on all providers, retrying in {wait:.0f} s")
+                time.sleep(wait)
+            for model in models:
+                try:
+                    return model.invoke(prompt)
+                except Exception as e:
+                    last_error = e
+        raise last_error
+
+    return RunnableLambda(call)
 
 
 def get_llm(temperature: float = 0) -> Runnable:
-    """Returns the primary model wrapped with the configured fallback chain."""
+    """Returns the primary model (retried across providers) wrapped with the fallback chain."""
     if temperature not in _cache:
-        primary, *fallbacks = _chain(temperature)
-        _cache[temperature] = primary.with_fallbacks(fallbacks) if fallbacks else primary
+        primary, fallbacks = _chain(temperature)
+        if not primary:
+            primary, fallbacks = fallbacks[:1], fallbacks[1:]
+        first = _primary_rounds(primary)
+        _cache[temperature] = first.with_fallbacks(fallbacks) if fallbacks else first
     return _cache[temperature]
 
 

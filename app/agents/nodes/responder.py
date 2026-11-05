@@ -61,7 +61,27 @@ def generate_node(state: AgentState):
         "{user_msg}"
         """
         else:
-            # Grounded prompt: only facts from the context, decline otherwise, stay concise
+            # Grounded prompts: only facts from the context, decline otherwise.
+            # "grounded" (v1) keeps answers short; "complete" (v2) asks for every relevant detail;
+            # "detailed" (v3) enforces a direct answer followed by the supporting details.
+            if settings.RESPONDER_PROMPT == "grounded":
+                style = """4. Be concise: a few sentences, or a short list for steps. Quote commands and YAML
+           exactly as they appear in the context."""
+            elif settings.RESPONDER_PROMPT == "complete":
+                style = """4. Be complete but direct: include every relevant detail the context gives for this
+           question (exact field values, numbers, related commands, the steps that follow, and
+           what the output shows), with no introduction or filler. Use a short list for steps.
+           Quote commands and YAML exactly as they appear in the context."""
+            else:
+                # "detailed" (v3): v2 answers stayed as narrow as v1, so the structure is now explicit
+                style = """4. Structure the answer in two parts:
+           a) First line: the direct answer to the question.
+           b) Then "Details:" with every related fact the context gives for this topic:
+              the concrete values used in the example (field values, numbers, names),
+              related commands (for example to create, inspect or clean up the resource),
+              constraints or properties stated about it, and what the output shows.
+           Keep each detail to one line. No introduction, no filler, nothing outside the context.
+           Quote commands and YAML exactly as they appear in the context."""
             prompt = f"""
         You are a documentation assistant for an internal Kubernetes knowledge base.
 
@@ -73,8 +93,7 @@ def generate_node(state: AgentState):
            and nothing else.
         3. If the context answers only part of the question, answer that part and say which part
            the documentation does not cover.
-        4. Be concise: a few sentences, or a short list for steps. Quote commands and YAML
-           exactly as they appear in the context.
+        {style}
 
         TECHNICAL CONTEXT:
         {full_context}

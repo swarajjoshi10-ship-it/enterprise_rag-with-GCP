@@ -22,8 +22,15 @@ def retrieve_node(state: AgentState):
         
         if settings.RERANK_ENABLED:
             with logfire.span("⚖️ Semantic Reranking"):
-                reranked_contents = rerank_documents(query, doc_contents, top_n=settings.RERANK_TOP_N)
-                logfire.info(f"Reranking complete. Kept top {settings.RERANK_TOP_N} most relevant chunks.")
+                ranked = rerank_documents(query, doc_contents, top_n=len(doc_contents))
+                # The cross-encoder sometimes drops a chunk dense search ranked first (e.g. a YAML
+                # manifest), so the top dense hits always stay; the re-ranker fills the other slots
+                keep = doc_contents[:settings.RERANK_KEEP_DENSE]
+                rest = [doc for doc in ranked if doc not in keep][:max(0, settings.RERANK_TOP_N - len(keep))]
+                selected = set(keep + rest)
+                reranked_contents = [doc for doc in ranked if doc in selected]  # re-ranker order
+                logfire.info(f"Reranking complete. Kept {len(reranked_contents)} chunks "
+                             f"({settings.RERANK_KEEP_DENSE} pinned from dense search).")
         else:
             # Ablation: plain vector-search order
             reranked_contents = doc_contents[:settings.RERANK_TOP_N]

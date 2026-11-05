@@ -23,10 +23,15 @@ class Settings:
     RETRIEVAL_TOP_K = int(os.getenv("RETRIEVAL_TOP_K", "15"))   # candidates from Qdrant
     RERANK_ENABLED = os.getenv("RERANK_ENABLED", "true").lower() == "true"
     RERANK_TOP_N = int(os.getenv("RERANK_TOP_N", "5"))          # chunks passed to the LLM
+    # Top dense hits always kept among the RERANK_TOP_N (0 = pure re-ranking, the Phase 4 setup).
+    # 2: restored gold-passage recall lost by re-ranking in an offline check with planner queries
+    RERANK_KEEP_DENSE = int(os.getenv("RERANK_KEEP_DENSE", "2"))
 
     # --- GENERATION ---
-    # "grounded": context-only answers, explicit decline, concise; "original": baseline prompt
-    RESPONDER_PROMPT = os.getenv("RESPONDER_PROMPT", "grounded").lower()
+    # All grounded variants answer only from context and decline otherwise:
+    # "detailed" (v3): direct answer + supporting details; "complete" (v2): asks for every
+    # relevant detail; "grounded" (v1): concise. "original": baseline prompt
+    RESPONDER_PROMPT = os.getenv("RESPONDER_PROMPT", "complete").lower()
 
     # --- REASONING ENGINE (GROQ) ---
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -39,6 +44,12 @@ class Settings:
     VERTEX_MAAS_LOCATION = os.getenv("VERTEX_MAAS_LOCATION", "us-central1")
     # Cut queueing spikes short and fall back (to the same model on Groq) instead of waiting
     VERTEX_TIMEOUT_S = float(os.getenv("VERTEX_TIMEOUT_S", "20"))
+    # Rounds over the primary model's providers (Vertex, then GROQ_MODEL) before a weaker model,
+    # pausing PRIMARY_BACKOFF_S x round between them; 1 = fall back immediately.
+    # Default 1: with 3 rounds the rate limits in evaluation lasted longer than the pauses, so the
+    # fallback share did not fall and median latency rose from ~26 s to ~65 s (v2r runs)
+    PRIMARY_ROUNDS = int(os.getenv("PRIMARY_ROUNDS", "1"))
+    PRIMARY_BACKOFF_S = float(os.getenv("PRIMARY_BACKOFF_S", "10"))
     # Each Groq model has its own free-tier quota; tried in order after GROQ_MODEL fails
     GROQ_FALLBACK_MODELS = [m.strip() for m in os.getenv("GROQ_FALLBACK_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-20b").split(",") if m.strip()]
     # Last resort on Vertex AI (GCP credits); set empty to disable
@@ -49,7 +60,8 @@ class Settings:
     # --- GUARDRAILS (NeMo, embeddings-only: no LLM calls) ---
     GUARDRAILS_ENABLED = os.getenv("GUARDRAILS_ENABLED", "true").lower() == "true"
     # Minimum similarity to match a rule; below it the message passes through (fail open)
-    GUARDRAILS_THRESHOLD = float(os.getenv("GUARDRAILS_THRESHOLD", "0.5"))
+    # 0.45: best in-house recall with no false blocks in the v2 threshold sweep (0.40 blocked a legit question)
+    GUARDRAILS_THRESHOLD = float(os.getenv("GUARDRAILS_THRESHOLD", "0.45"))
     # embeddings | promptguard | safeguard | layered (see app/guardrails/rails.py)
     GUARDRAILS_MODE = os.getenv("GUARDRAILS_MODE", "embeddings").lower()
     PROMPT_GUARD_MODEL = os.getenv("PROMPT_GUARD_MODEL", "meta-llama/llama-prompt-guard-2-86m")

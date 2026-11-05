@@ -89,10 +89,45 @@ The in-house set has 20 attacks and 12 legitimate questions. The external set is
 
 | Mode | In-house attacks blocked | False blocks | External injections recognised as attack | Median latency |
 |---|---|---|---|---|
-| NeMo embedding rails (deployed) | 45% | 0% | 4% | 0.1 s |
+| NeMo embedding rails v1 (threshold 0.5) | 45% | 0% | 4% | 0.1 s |
 | Llama Prompt Guard 2 | 40% | 0% | 28% | 0.2 s |
 | Layered (rails + Prompt Guard) | 55% | 0% | 30% | 0.3 s |
 | LLM classifier (`gpt-oss-safeguard-20b`) | 100% | 0% | 16% (blocks 97% as off-topic) | 21 s (free tier) |
+
+**4. Improvements after error analysis (v2)**
+
+*Guardrail examples.* About 70 new example utterances were written for the missed attack categories (role-play, fake admin/debug commands, prompt extraction, hacking, everyday off-topic tasks), then the threshold was swept. The examples were written after looking at in-house failures, so the in-house column is optimistic; the external set is the unbiased check.
+
+| Configuration | Threshold | In-house blocked | False blocks | External recognised as attack | External benign blocked |
+|---|---|---|---|---|---|
+| Embedding rails v1 | 0.50 | 45% | 0% | 4% | 3% |
+| Embedding rails v2 | 0.40 | 100% | 8% | 34% | 44% |
+| **Embedding rails v2 (new default)** | **0.45** | **85%** | **0%** | **16%** | **17%** |
+| Embedding rails v2 | 0.50 | 65% | 0% | 4% | 4% |
+| Layered v2 (+ Prompt Guard) | 0.45 | 85% | 0% | 32% | 18% |
+
+*Responder prompt.* Most lost correctness came from correct but incomplete answers, so two longer grounded prompts were tested (3 runs each, 0× index):
+
+| Prompt | Correctness | Faithfulness | Out-of-scope declined | Median answer | Answers by qwen3 fallback | Correctness, gpt-oss-120b answers only |
+|---|---|---|---|---|---|---|
+| v1 grounded (concise) | 0.68 | 0.95 | 78% | 250 chars | 26% | 0.74 |
+| **v2 complete (new default)** | **0.74** | **0.97** | **100%** | 178 chars | 0% | 0.74 |
+| v3 detailed | 0.69 | 0.95 | 67% | 470 chars | 22% | 0.73 |
+
+v2 vs v1 is +0.06 (95% CI −0.02 to +0.15), not significant. Counting only answers written by gpt-oss-120b, all three prompts score about 0.74. The raw differences come mainly from rate limits that pushed some answers to the smaller qwen3 fallback model. Two v3 runs that were almost entirely served by the fallback are kept in [evals/results/excluded_ratelimited/](evals/results/excluded_ratelimited/) and excluded from the comparison.
+
+*Gateway retries.* Retrying gpt-oss-120b on both providers for up to 3 rounds (10 s, 20 s pauses) before falling back did not help (`v2r-*` runs): smaller models still wrote 44% of answers, median latency rose from 26 s to 65 s, and correctness was 0.70 vs 0.74 (−0.04, 95% CI −0.11 to +0.02). The rate limits came from sustained evaluation traffic, so the next real gain needs a paid or provisioned endpoint. Immediate fallback stays the default (`PRIMARY_ROUNDS=1`).
+
+*Dense-pinned re-ranking.* The cross-encoder sometimes dropped the chunk that dense search ranked first (often a YAML manifest). The retriever now always keeps the top 2 dense hits and lets the re-ranker fill the other 3 slots (`RERANK_KEEP_DENSE=2`; `0` restores pure re-ranking).
+
+| Check | Pure re-ranking | Dense-pinned (top 2) |
+|---|---|---|
+| Gold passage reaches the model (237 logged planner queries, judge-free, 0× and 50×) | 0.878 | **0.903** (= dense order) |
+| Queries missing a reference passage | 35 | **29** |
+| RAGAS context recall, 0×, 3 runs (`v2k-*`) | 0.96 | 0.98 (+0.03, 95% CI −0.02 to +0.09) |
+| Answer correctness, gpt-oss-120b answers | 0.74 | 0.74 (+0.00, 95% CI −0.04 to +0.04) |
+
+A small, non-significant retrieval gain with no change in answer quality, kept as a low-risk default. The single 50× run is not conclusive: rate limits sent 67% of its answers to qwen3.
 
 Reliability: 0 failed questions across all runs; the gateway absorbed provider slowdowns. Live latency is about 3 s per answer.
 
@@ -175,6 +210,7 @@ How to run the pipeline, score it and analyse it, including the noise collection
 
 - [DOCS/22_EVALUATION.md](DOCS/22_EVALUATION.md)
 - [evals/run_phase4.sh](evals/run_phase4.sh)
+- [evals/run_prompt_variant.sh](evals/run_prompt_variant.sh) (responder prompt variants)
 
 The noise PDFs are third-party material and aren't in the repository. Pass your own folder with `--noise-dir`.
 

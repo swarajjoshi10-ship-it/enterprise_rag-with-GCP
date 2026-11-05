@@ -1,0 +1,1121 @@
+{
+  "run_id": "20261104-180101",
+  "label": "v3-n0x-rr-on-rep3",
+  "git_commit": "651fa7e",
+  "config": {
+    "mode": "inproc",
+    "qdrant_collection": "exp_noise_0x",
+    "retrieval_top_k": 15,
+    "rerank_enabled": true,
+    "rerank_top_n": 5,
+    "responder_prompt": "detailed",
+    "guardrails_enabled": false,
+    "guardrails_threshold": 0.45,
+    "guardrails_mode": "embeddings",
+    "primary_model": "openai/gpt-oss-120b-maas",
+    "groq_model": "openai/gpt-oss-120b",
+    "groq_fallback_models": [
+      "qwen/qwen3.8-27b",
+      "openai/gpt-oss-20b"
+    ],
+    "gemini_fallback_model": "gemini-3.5-flash-lite",
+    "pdf_parser": "pypdf"
+  },
+  "rag": [
+    {
+      "id": "R01",
+      "domain": "parallel_work_queue",
+      "question": "How do you start Redis for a Kubernetes work queue?",
+      "reference": "Run kubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml and kubectl apply -f https://k8s.io/examples/application/job/redis/redis-service.yaml to start a single Redis instance for the work queue.",
+      "relevant_contexts": [
+        "For this example, you will start a single instance of Redis.\n\nRun the following commands:\n\n    kubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml\n    kubectl apply -f https://k8s.io/examples/application/job/redis/redis-service.yaml",
+        "OVERVIEW OF STEPS\n1. Start a storage service to hold the work queue. (We will use Redis).\n2. Create a queue, and fill it with messages.\n3. Start a Job that works on tasks from the queue."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Run the Redis pod and service manifests with kubectl apply.  \nDetails:\n- For a single Redis instance, run: `kubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml`  \n- Then create the Redis service: `kubectl apply -f https://k8s.io/examples/application/job/redis/redis-service.yaml`",
+      "contexts": [
+        "Mastering Kubernetes Jobs and CronJobs: A Platform Engineer’s Complete Guide\nIntroduction\nAs a platform engineer, you’ve likely encountered scenarios where you need to run one-time tasks, batch jobs, or scheduled operations in your Kubernetes clusters. Unlike long-running services managed by Deployments or StatefulSets, these finite workloads require a different approach. Enter Kubernetes Jobs and CronJobs — powerful resources designed specifically for task-oriented workloads that run to completion.\nIn this comprehensive guide, we’ll explore everything you need to know about Jobs and CronJobs, from basic concepts to advanced patterns, real-world use cases, troubleshooting strategies, and security considerations.\nKubernetes Job Hierarchy\nUnderstanding Kubernetes Jobs\nWhat Are Jobs?\nA Kubernetes Job is a resource designed to run finite workloads that execute a task to completion. Unlike Pods created via Deployments, which run indefinitely, a Job ensures that its associated Pods complete their task and then exit successfully.\nKey Characteristics\n1. Restart Policy Requirements\nJobs have strict requirements for Pod restart policies:\nOnFailure: Kubelet restarts the container within the same Pod if it crashes.\nNever: Entire Pod is marked as failed, Job controller creates a new Pod.\nAlways: Not allowed (would prevent Pod from ever completing).\n2. API Group and Immutability\nBelongs to the batch/v1 API group (stable).\nPod template cannot be modified after Job creation.",
+        "FINE PARALLEL PROCESSING USING A WORK QUEUE\n================================================================================\nIn this example, you will run a Kubernetes Job that runs multiple parallel\ntasks as worker processes, each running as a separate Pod.\nIn this example, as each pod is created, it picks up one unit of work\nfrom a task queue, processes it, and repeats until the end of the queue is reached.\nOVERVIEW OF STEPS\n--------------------------------------------------------------------------------\n1. Start a storage service to hold the work queue. (We will use Redis).\n2. Create a queue, and fill it with messages.\n3. Start a Job that works on tasks from the queue.\nBEFORE YOU BEGIN\n--------------------------------------------------------------------------------\nYou need to have a Kubernetes cluster, and the kubectl command-line tool must\nbe configured.\nYou will need a container image registry (like Docker Hub) where you can upload\nimages to run in your cluster.\nDocumentation Link: https://kubernetes.io/docs/tasks/job/fine-parallel-processing-work-queue/\n--------------------------------------------------------------------------------\nSTEP 1: STARTING REDIS\n--------------------------------------------------------------------------------\nFor this example, you will start a single instance of Redis.\nRun the following commands:\nkubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml",
+        "For this example, you will start a single instance of Redis.\nRun the following commands:\nkubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml\nkubectl apply -f https://k8s.io/examples/application/job/redis/redis-service.yaml\n--------------------------------------------------------------------------------\nSTEP 2: FILLING THE QUEUE WITH TASKS\n--------------------------------------------------------------------------------\nStart a temporary interactive pod for running the Redis CLI:\nkubectl run -i --tty temp --image redis --command \"/bin/sh\"\nOnce the prompt appears, connect to Redis and fill the queue (named \"job2\"):\nredis-cli -h redis\n# Inside the redis prompt:\nrpush job2 \"apple\"\nrpush job2 \"banana\"\nrpush job2 \"cherry\"\nrpush job2 \"date\"\nrpush job2 \"fig\"\nrpush job2 \"grape\"\nrpush job2 \"lemon\"\nrpush job2 \"melon\"\nrpush job2 \"orange\"\n# Check the list:\nlrange job2 0 -1\n--------------------------------------------------------------------------------\nSTEP 3: CREATE A CONTAINER IMAGE\n--------------------------------------------------------------------------------\nYou need a Python worker program to read from the queue.\nHere is the worker script (worker.py):\n#!/usr/bin/env python\nimport time\nimport rediswq\nhost=\"redis\"\n# Uncomment next two lines if you do not have Kube-DNS working.\n# import os\n# host = os.getenv(\"REDIS_SERVICE_HOST\")\nq = rediswq.RedisWQ(name=\"job2\", host=host)\nprint(\"Worker with sessionID: \" +  q.sessionID())",
+        "How to monitor Kubernetes job status and logs\nIntroduction\nKubernetes is a powerful container orchestration platform that helps manage containerized applications across multiple hosts. One important feature of Kubernetes is its job management system, which allows you to run batch-oriented workloads to completion. In this tutorial, you will learn how to monitor the status of Kubernetes jobs and analyze their logs, essential skills for ensuring your containerized applications run smoothly.\nBy the end of this tutorial, you will be able to create Kubernetes jobs, check their status, and examine their logs to troubleshoot issues effectively.\nSetting Up Your Kubernetes Environment\nBefore we can monitor Kubernetes jobs, we need to set up a working Kubernetes environment. We'll use Minikube, a tool that creates a single-node Kubernetes cluster on your local machine.\nInstalling Minikube\nMinikube is typically pre-installed on many lab environments. Let's verify the installation by checking the version:\nminikube version\nYou should see output similar to this:\nminikube version: v1.29.0\ncommit: ddac20b4b34a9c8c857fc602203b6ba2679794d3\nStarting Minikube\nNow let's start Minikube to create a local Kubernetes cluster:\nminikube start --driver=docker\nThis command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\nOnce complete, you should see a message like:",
+        "This command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\nOnce complete, you should see a message like:\n🏄  Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default\nVerifying Kubernetes Installation\nLet's verify that our Kubernetes cluster is running correctly by checking the node status:\nkubectl get nodes\nYou should see output similar to this:\nNAME       STATUS   ROLES           AGE     VERSION\nminikube   Ready    control-plane   1m      v1.26.3\nAlso, check that the core Kubernetes components are running:\nkubectl get pods -n kube-system\nYou should see several pods running, including components like kube-apiserver, kube-controller-manager, and others.\nNow that we have a running Kubernetes cluster, we're ready to create and monitor jobs.\nCreating Your First Kubernetes Job\nIn this step, we'll create a simple Kubernetes job that will run a container, perform a task, and then complete. This will give us something to monitor in the following steps.\nUnderstanding Kubernetes Jobs\nA Kubernetes Job is a controller that creates one or more pods and ensures they successfully terminate. Jobs are useful for batch processes, one-time tasks, or any task that should run to completion rather than indefinitely.\nCreating a Job Configuration File"
+      ],
+      "context_sources": [
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "parallel_work_queue.txt",
+          "source_type": "true"
+        },
+        {
+          "source": "parallel_work_queue.txt",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: how to start Redis in Kubernetes for a work queue deployment guide",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: openai/gpt-oss-120b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "openai/gpt-oss-120b"
+      },
+      "latency_s": 18.27,
+      "error": null
+    },
+    {
+      "id": "R02",
+      "domain": "parallel_work_queue",
+      "question": "What does the parallelism field do in the Kubernetes job-wq-2 manifest?",
+      "reference": "The parallelism field is set to 2 in the job-wq-2 manifest, meaning a maximum of 2 Pods run simultaneously. Each pod picks up one unit of work from the Redis queue, processes it, and repeats until the queue is empty.",
+      "relevant_contexts": [
+        "spec:\n  parallelism: 2\n  template:\n    metadata:\n      name: job-wq-2\n    spec:\n      containers:\n      - name: c\n        image: gcr.io/myproject/job-wq-2\n      restartPolicy: OnFailure",
+        "In this example, as each pod is created, it picks up one unit of work from a task queue, processes it, and repeats until the end of the queue is reached.\n\nNote on Parallelism:\nIn this example, each pod works on several items from the queue and then exits. Workers signal the queue is empty by exiting with success."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Parallelism sets the maximum number of Pods that the Job can run concurrently.  \n\nDetails:\n- `spec: parallelism: 5` – example showing increased parallelism for parallelizable workloads.  \n- `spec: parallelism: 3  # Max 3 Pods running simultaneously` – description that parallelism controls maximum concurrent Pods.  \n- In the Indexed mode example, `parallelism: 2` limits concurrent Pods while each Pod gets a unique completion index.  \n- Parallelism works together with `completions` to determine how many Pods run and finish.  ",
+      "contexts": [
+        "Solutions:\n# Set active deadline\nspec:\nactiveDeadlineSeconds: 3600  # Kill job after 1 hour\n# Increase parallelism for parallelizable workloads\nspec:\nparallelism: 5\ncompletions: 10\n# Use faster nodes with node affinity\nspec:\ntemplate:\nspec:\naffinity:\nnodeAffinity:\nrequiredDuringSchedulingIgnoredDuringExecution:\nnodeSelectorTerms:\n- matchExpressions:\n- key: node-type\noperator: In\nvalues: [\"high-performance\"]\nPerformance Optimization\n1. Resource Right-Sizing\nPerformance Optimization Charts\nUse Vertical Pod Autoscaler recommendations:\n# Install VPA if not present\nkubectl apply -f https://github.com/kubernetes/autoscaler/releases/download/vpa-0.13.0/vpa-release-0.13.0.yaml\n# Create VPA for job analysis\nkubectl apply -f - <<EOF\napiVersion: autoscaling.k8s.io/v1\nkind: VerticalPodAutoscaler\nmetadata:\nname: job-sizing-analysis\nspec:\ntargetRef:\napiVersion: batch/v1\nkind: Job\nname: my-analysis-job\nupdatePolicy:\nupdateMode: \"Off\"  # Just provide recommendations\nEOF\n# Check recommendations\nkubectl describe vpa job-sizing-analysis\n2. Efficient Container Images\n# Multi-stage build for smaller images\nFROM golang:1.19-alpine AS builder\nWORKDIR /app\nCOPY go.mod go.sum ./\nRUN go mod download\nCOPY . .\nRUN CGO_ENABLED=0 GOOS=linux go build -o job-runner\nFROM alpine:3.16\nRUN apk --no-cache add ca-certificates\nWORKDIR /root/\nCOPY --from=builder /app/job-runner .\nUSER 1000:1000\nCMD [\"./job-runner\"]\n3. Parallel Processing Patterns\n# Pattern 1: Fixed work distribution\napiVersion: batch/v1\nkind: Job",
+        "FINE PARALLEL PROCESSING USING A WORK QUEUE\n================================================================================\nIn this example, you will run a Kubernetes Job that runs multiple parallel\ntasks as worker processes, each running as a separate Pod.\nIn this example, as each pod is created, it picks up one unit of work\nfrom a task queue, processes it, and repeats until the end of the queue is reached.\nOVERVIEW OF STEPS\n--------------------------------------------------------------------------------\n1. Start a storage service to hold the work queue. (We will use Redis).\n2. Create a queue, and fill it with messages.\n3. Start a Job that works on tasks from the queue.\nBEFORE YOU BEGIN\n--------------------------------------------------------------------------------\nYou need to have a Kubernetes cluster, and the kubectl command-line tool must\nbe configured.\nYou will need a container image registry (like Docker Hub) where you can upload\nimages to run in your cluster.\nDocumentation Link: https://kubernetes.io/docs/tasks/job/fine-parallel-processing-work-queue/\n--------------------------------------------------------------------------------\nSTEP 1: STARTING REDIS\n--------------------------------------------------------------------------------\nFor this example, you will start a single instance of Redis.\nRun the following commands:\nkubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml",
+        "Always: Not allowed (would prevent Pod from ever completing).\n2. API Group and Immutability\nBelongs to the batch/v1 API group (stable).\nPod template cannot be modified after Job creation.\nImmutable by design for consistency.\nJob Lifecycle States\nCreating Your First Job\nHere’s a basic Job manifest example:\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: data-processor\nnamespace: batch-jobs\nspec:\ntemplate:\nspec:\ncontainers:\n- name: processor\nimage: mcr.microsoft.com/powershell:7.2-alpine-3.13\ncommand:\n- pwsh\n- -Command\n- |\nWrite-Host \"Starting data processing at $(Get-Date)\"\nStart-Sleep -Seconds 30\nWrite-Host \"Processing completed at $(Get-Date)\"\nresources:\nrequests:\ncpu: 500m\nmemory: 200Mi\nlimits:\ncpu: 600m\nmemory: 300Mi\nrestartPolicy: Never\nbackoffLimit: 3\nJob Manifest Breakdown\nAdvanced Job Patterns\nCompletions and Parallelism\nTwo critical fields control how Jobs execute:\nCompletions\nSpecifies the number of Pods that must successfully complete:\nspec:\ncompletions: 5  # Job completes after 5 successful Pod completions\nParallelism\nControls maximum concurrent Pods:\nspec:\nparallelism: 3  # Max 3 Pods running simultaneously\nParallel Job Execution Timeline\nJob Completion Modes\nNonIndexed (Default)\nAll Pods are identical:\nspec:\ncompletionMode: NonIndexed\ncompletions: 3\nparallelism: 2\nIndexed Mode\nEach Pod gets a unique completion index:\nspec:\ncompletionMode: Indexed\ncompletions: 3\nparallelism: 2\ntemplate:\nspec:\ncontainers:\n- name: worker\nimage: alpine:latest\ncommand:\n- sh\n- -c\n- |",
+        "Checking Job Status with kubectl\nThe primary tool for monitoring Kubernetes resources is kubectl. Let's use it to check the status of our job:\nkubectl get jobs\nYou should see output similar to this:\nNAME        COMPLETIONS   DURATION   AGE\nhello-job   1/1           10s        30s\nThis output shows:\nNAME: The name of the job\nCOMPLETIONS: The number of completed pods / desired completions\nDURATION: How long the job took to run\nAGE: How long since the job was created\nIf your job shows 0/1 under COMPLETIONS, it might still be running or has failed. Wait a few seconds and run the command again.\nGetting Detailed Job Information\nTo get more detailed information about a job, use the describe command:\nkubectl describe job hello-job\nThis command provides extensive information about the job, including:\nLabels and annotations\nSelector details\nParallelism and completion requirements\nPod statuses\nEvents related to the job\nLook for the Events section at the bottom, which shows important events like pod creation and completion.\nUnderstanding Job Status\nA job can have several statuses:\nActive: The job is still running\nCompleted: The job has completed successfully\nFailed: The job has failed after reaching its backoff limit\nLet's check if our job's pod has completed:\nkubectl get pods\nYou should see something like:\nNAME              READY   STATUS      RESTARTS   AGE\nhello-job-abcd1   0/1     Completed   0          1m\nThe STATUS column shows Completed, indicating that our job ran successfully.",
+        "Mastering Kubernetes Jobs and CronJobs: A Platform Engineer’s Complete Guide\nIntroduction\nAs a platform engineer, you’ve likely encountered scenarios where you need to run one-time tasks, batch jobs, or scheduled operations in your Kubernetes clusters. Unlike long-running services managed by Deployments or StatefulSets, these finite workloads require a different approach. Enter Kubernetes Jobs and CronJobs — powerful resources designed specifically for task-oriented workloads that run to completion.\nIn this comprehensive guide, we’ll explore everything you need to know about Jobs and CronJobs, from basic concepts to advanced patterns, real-world use cases, troubleshooting strategies, and security considerations.\nKubernetes Job Hierarchy\nUnderstanding Kubernetes Jobs\nWhat Are Jobs?\nA Kubernetes Job is a resource designed to run finite workloads that execute a task to completion. Unlike Pods created via Deployments, which run indefinitely, a Job ensures that its associated Pods complete their task and then exit successfully.\nKey Characteristics\n1. Restart Policy Requirements\nJobs have strict requirements for Pod restart policies:\nOnFailure: Kubelet restarts the container within the same Pod if it crashes.\nNever: Entire Pod is marked as failed, Job controller creates a new Pod.\nAlways: Not allowed (would prevent Pod from ever completing).\n2. API Group and Immutability\nBelongs to the batch/v1 API group (stable).\nPod template cannot be modified after Job creation."
+      ],
+      "context_sources": [
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "parallel_work_queue.txt",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Kubernetes job parallelism field purpose in job-wq-2 manifestKubernetes job parallelism field purpose in job-wq-2 manifest",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: openai/gpt-oss-120b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "openai/gpt-oss-120b"
+      },
+      "latency_s": 26.06,
+      "error": null
+    },
+    {
+      "id": "R03",
+      "domain": "parallel_work_queue",
+      "question": "How do you fill the Redis work queue with tasks using the CLI?",
+      "reference": "Start a temporary interactive pod with kubectl run -i --tty temp --image redis --command \"/bin/sh\", connect to Redis using redis-cli -h redis, then push tasks using rpush job2 followed by the task name (e.g. rpush job2 \"apple\"). Use lrange job2 0 -1 to verify the queue contents.",
+      "relevant_contexts": [
+        "Start a temporary interactive pod for running the Redis CLI:\n\n    kubectl run -i --tty temp --image redis --command \"/bin/sh\"\n\nOnce the prompt appears, connect to Redis and fill the queue (named \"job2\"):\n\n    redis-cli -h redis\n\n    # Inside the redis prompt:\n    rpush job2 \"apple\"\n    rpush job2 \"banana\"\n    rpush job2 \"cherry\"\n\n    # Check the list:\n    lrange job2 0 -1"
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Run a temporary Redis CLI pod, connect to the Redis service, and use RPUSH to add items to the job2 queue.  \n\nDetails:\n- `kubectl run -i --tty temp --image redis --command \"/bin/sh\"` – start an interactive pod for the Redis CLI.  \n- `redis-cli -h redis` – connect to the Redis service from the pod.  \n- `rpush job2 \"apple\"` – add “apple” to the queue.  \n- `rpush job2 \"banana\"` – add “banana” to the queue.  \n- `rpush job2 \"cherry\"` – add “cherry” to the queue.  \n- `rpush job2 \"date\"` – add “date” to the queue.  \n- `rpush job2 \"fig\"` – add “fig” to the queue.  \n- `rpush job2 \"grape\"` – add “grape” to the queue.  \n- `rpush job2 \"lemon\"` – add “lemon” to the queue.  \n- `rpush job2 \"melon\"` – add “melon” to the queue.  \n- `rpush job2 \"orange\"` – add “orange” to the queue.  \n- `lrange job2 0 -1` – list all items in the queue to verify.",
+      "contexts": [
+        "For this example, you will start a single instance of Redis.\nRun the following commands:\nkubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml\nkubectl apply -f https://k8s.io/examples/application/job/redis/redis-service.yaml\n--------------------------------------------------------------------------------\nSTEP 2: FILLING THE QUEUE WITH TASKS\n--------------------------------------------------------------------------------\nStart a temporary interactive pod for running the Redis CLI:\nkubectl run -i --tty temp --image redis --command \"/bin/sh\"\nOnce the prompt appears, connect to Redis and fill the queue (named \"job2\"):\nredis-cli -h redis\n# Inside the redis prompt:\nrpush job2 \"apple\"\nrpush job2 \"banana\"\nrpush job2 \"cherry\"\nrpush job2 \"date\"\nrpush job2 \"fig\"\nrpush job2 \"grape\"\nrpush job2 \"lemon\"\nrpush job2 \"melon\"\nrpush job2 \"orange\"\n# Check the list:\nlrange job2 0 -1\n--------------------------------------------------------------------------------\nSTEP 3: CREATE A CONTAINER IMAGE\n--------------------------------------------------------------------------------\nYou need a Python worker program to read from the queue.\nHere is the worker script (worker.py):\n#!/usr/bin/env python\nimport time\nimport rediswq\nhost=\"redis\"\n# Uncomment next two lines if you do not have Kube-DNS working.\n# import os\n# host = os.getenv(\"REDIS_SERVICE_HOST\")\nq = rediswq.RedisWQ(name=\"job2\", host=host)\nprint(\"Worker with sessionID: \" +  q.sessionID())",
+        "# import os\n# host = os.getenv(\"REDIS_SERVICE_HOST\")\nq = rediswq.RedisWQ(name=\"job2\", host=host)\nprint(\"Worker with sessionID: \" +  q.sessionID())\nprint(\"Initial queue state: empty=\" + str(q.empty()))\nwhile not q.empty():\nitem = q.lease(lease_secs=10, block=True, timeout=2)\nif item is not None:\nitemstr = item.decode(\"utf-8\")\nprint(\"Working on \" + itemstr)\ntime.sleep(10) # Put your actual work here instead of sleep.\nq.complete(item)\nelse:\nprint(\"Waiting for work\")\nprint(\"Queue empty, exiting\")\nBuild the image (requires Docker):\ndocker build -t job-wq-2 .\nPush the image to your registry (replace <username> with your Hub username):\ndocker tag job-wq-2 <username>/job-wq-2\ndocker push <username>/job-wq-2\n--------------------------------------------------------------------------------\nSTEP 4: DEFINING A JOB\n--------------------------------------------------------------------------------\nHere is the manifest for the Job (job.yaml).\nNote: Replace \"gcr.io/myproject\" with your image registry path.\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: job-wq-2\nspec:\nparallelism: 2\ntemplate:\nmetadata:\nname: job-wq-2\nspec:\ncontainers:\n- name: c\nimage: gcr.io/myproject/job-wq-2\nrestartPolicy: OnFailure\nNote on Parallelism:\nIn this example, each pod works on several items from the queue and then exits.\nWorkers signal the queue is empty by exiting with success.\n--------------------------------------------------------------------------------\nSTEP 5: RUNNING THE JOB",
+        "FINE PARALLEL PROCESSING USING A WORK QUEUE\n================================================================================\nIn this example, you will run a Kubernetes Job that runs multiple parallel\ntasks as worker processes, each running as a separate Pod.\nIn this example, as each pod is created, it picks up one unit of work\nfrom a task queue, processes it, and repeats until the end of the queue is reached.\nOVERVIEW OF STEPS\n--------------------------------------------------------------------------------\n1. Start a storage service to hold the work queue. (We will use Redis).\n2. Create a queue, and fill it with messages.\n3. Start a Job that works on tasks from the queue.\nBEFORE YOU BEGIN\n--------------------------------------------------------------------------------\nYou need to have a Kubernetes cluster, and the kubectl command-line tool must\nbe configured.\nYou will need a container image registry (like Docker Hub) where you can upload\nimages to run in your cluster.\nDocumentation Link: https://kubernetes.io/docs/tasks/job/fine-parallel-processing-work-queue/\n--------------------------------------------------------------------------------\nSTEP 1: STARTING REDIS\n--------------------------------------------------------------------------------\nFor this example, you will start a single instance of Redis.\nRun the following commands:\nkubectl apply -f https://k8s.io/examples/application/job/redis/redis-pod.yaml",
+        "Databricks REST API\nIf none of the above options work for your specific use case, you can use the Databricks REST API directly. Use the REST API directly for use cases such as automating processes where an SDK in your preferred programming language is not currently available.\nGet started with the Databricks CLI\nTo install and configure authentication for the Databricks CLI, see\nInstall or update the Databricks CLI\nand\nAuthentication for the Databricks CLI\n.\nThe Databricks CLI has command groups for Databricks features, including one for jobs, that contain a set of related commands. The\njobs\ncommand group enables you to manage your jobs and job runs with actions such as\ncreate\n,\ndelete\n, and\nget\n. Because the CLI wraps the Databricks REST API, most CLI commands map to a REST API request. For example,\ndatabricks jobs get\nmaps to\nGET/api/2.2/jobs/get\n.\nTo output more detailed usage and syntax information for the jobs command group, use the\n-h\nflag:\ndatabricks jobs -h\ndatabricks jobs <command-name> -h\ndatabricks jobs <command-name> <subcommand-name> -h\nExample: Retrieve a job using the CLI\nTo print information about an individual job in a workspace, run the following command:\ndatabricks jobs get <job-id>\n# Example\ndatabricks jobs get 478701692316314\nThis command returns JSON:\n{\n\"created_time\": 1730983530082,\n\"creator_user_name\": \"someone@example.com\",\n\"job_id\": 478701692316314,\n\"run_as_user_name\": \"someone@example.com\",\n\"settings\": {\n\"email_notifications\": {",
+        "Automate job creation and management\nThis article shows you how to get started with developer tools to automate the creation and management of jobs. It introduces you to the Databricks CLI, the Databricks SDKs, and the REST API.\nNote:\nThis article provides examples for creating and managing jobs using the Databricks CLI, the Databricks Python SDK, and the REST API as an easy introduction to those tools. To programmatically manage jobs as part of CI/CD use\nDatabricks Asset Bundles\nor the\nDatabricks Terraform provider\n.\nCompare tools\nThe following table compares the Databricks CLI, the Databricks SDKs, and the REST API for programmatically creating and managing jobs. To learn about all available developer tools, see\nLocal development tools\n.\nTool\nDescription\nDatabricks CLI\nAccess Databricks functionality using the Databricks command-line interface (CLI), which wraps the REST API. Use the CLI for one-off tasks such as experimentation, shell scripting, and invoking the REST API directly.\nDatabricks SDKs\nDevelop applications and create custom Databricks workflows using a Databricks SDK, available for Python, Java, Go, or R. Instead of sending REST API calls directly using curl or Postman, you can use an SDK to interact with Databricks.\nDatabricks REST API"
+      ],
+      "context_sources": [
+        {
+          "source": "parallel_work_queue.txt",
+          "source_type": "true"
+        },
+        {
+          "source": "parallel_work_queue.txt",
+          "source_type": "true"
+        },
+        {
+          "source": "parallel_work_queue.txt",
+          "source_type": "true"
+        },
+        {
+          "source": "job_management.html",
+          "source_type": "true"
+        },
+        {
+          "source": "job_management.html",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Redis CLI push tasks to work queuehow to add tasks to a Redis work queue using redis-cli",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: openai/gpt-oss-120b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "openai/gpt-oss-120b"
+      },
+      "latency_s": 46.74,
+      "error": null
+    },
+    {
+      "id": "R04",
+      "domain": "pods_autoscale",
+      "question": "What is the difference between HPA and VPA in Kubernetes?",
+      "reference": "HPA (Horizontal Pod Autoscaler) scales the number of pod replicas up or down based on CPU or custom metrics. VPA (Vertical Pod Autoscaler) adjusts the CPU and memory resource requests and limits for existing pods. HPA adds or removes pods; VPA resizes the resources of existing pods.",
+      "relevant_contexts": [
+        "Horizontal Pod Autoscaling (HPA) automatically scales the number of pods in a replication controller, deployment, or replica set based on observed CPU utilization or other select metrics.",
+        "Autoscaling in Kubernetes ensures that your application can handle varying loads by automatically adjusting the number of running pods or the resources allocated to them. This dynamic adjustment is crucial for maintaining application performance, optimizing resource usage, and reducing operational costs."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "HPA scales the number of pods horizontally, while VPA adjusts resource requests/limits of individual pods vertically.  \nDetails:\n- HPA automatically scales the number of pods in a replication controller, deployment, or replica set based on observed CPU utilization (or other select metrics).  \n- HPA operates by monitoring specified metrics, evaluating thresholds, and scaling pods up or down accordingly.  \n- HPA is ideal for stateless applications that can easily scale horizontally by adding more pods; useful for variable workloads and high availability.  \n- VPA adjusts the resources allocated to individual pods rather than changing pod count.  \n- VPA is suitable for applications where horizontal scaling is not feasible or when you need to optimize resource usage for individual pods; beneficial for stateful applications or those with varying resource needs.  \n- Example VPA configuration:  \n  ```yaml\n  apiVersion: autoscaling.k8s.io/v1\n  kind: VerticalPodAutoscaler\n  …\n  resourcePolicy:\n    containerPolicies:\n    - containerName: <container_name>\n      mode: \"Off\"\n  ```  \n- In the VPA example, `<container_name>` refers to the container to exclude from scaling, and `mode: \"Off\"` specifies that the VPA should not apply any autoscaling actions to that container.  ",
+      "contexts": [
+        "A Hands-On Guide to Kubernetes Horizontal & Vertical Pod Autoscalers\n⎈ A Hands-On Guide to Kubernetes Horizontal & Vertical Pod Autoscalers 🛠️\n⇢ HPA & VPA in Kubernetes with a Practical Example\nAnvesh Muppeda\nJun 3, 2024 · 11 min read\nHPA & VPA in Kubernetes by Anvesh Muppeda\nIn the world of container orchestration, Kubernetes has emerged as the de facto standard. One of its powerful features is autoscaling, which helps maintain application performance and optimize resource usage. In this post, we’ll dive into two main types of autoscaling in Kubernetes:\nHorizontal Pod Autoscaling (HPA)\nand\nVertical Pod Autoscaling (VPA)\n.\nIntroduction to Kubernetes Autoscaling\nAutoscaling in Kubernetes ensures that your application can handle varying loads by automatically adjusting the number of running pods or the resources allocated to them. This dynamic adjustment is crucial for maintaining application performance, optimizing resource usage, and reducing operational costs.\nHPA & VPA Animation\n...\nMetric Server Setup\nBefore testing\nHorizontal Pod Autoscaler (HPA)\nand\nVertical Pod Autoscaler (VPA)\n, it’s essential to have the Metrics Server installed in your Kubernetes cluster. The Metrics Server collects resource usage metrics from the cluster’s nodes and pods, which are necessary for autoscaling decisions.",
+        "With the Metrics Server installed and collecting metrics, you can proceed to test the Horizontal Pod Autoscaler (\nHPA\n) and Vertical Pod Autoscaler (\nVPA\n) functionalities in your Kubernetes cluster.\n...\nHorizontal Pod Autoscaling (HPA)\nWhat is HPA?\nHorizontal Pod Autoscaling (HPA)\nautomatically scales the number of pods in a replication controller, deployment, or replica set based on observed CPU utilization (or other select metrics). This allows your application to scale out (add more pods) or scale in (reduce the number of pods) in response to load changes.\nHow Does HPA Work?\nHPA operates by:\nMonitoring Metrics:\nHPA continuously monitors the specified metrics (e.g., CPU usage, memory usage, custom metrics).\nEvaluating Thresholds:\nIt compares the current metric values against predefined thresholds.\nScaling Pods:\nIf the metric values exceed the thresholds, HPA increases the number of pods. Conversely, if the values drop below the thresholds, it decreases the number of pods.\nAdvantages of HPA\nElasticity\n: Automatically adjusts the number of pods to meet current demand.\nCost-Efficiency:\nOptimizes resource usage by adding or removing pods as needed.\nPerformance\n: Helps maintain application performance during high traffic periods.\nHPA Practical Example\nTo set up HPA, you need to define an\nHPA\nobject in your Kubernetes cluster.\nLet’s deploy an example using\nHPA\n.\nStep 1: Create a Deployment\nCreate a file named\nhpa-deployment.yaml\nwith the following content:\napiVersion: apps/v1",
+        "apiVersion: autoscaling.k8s.io/v1\nkind: VerticalPodAutoscaler\n.\n.\n.\nresourcePolicy:\ncontainerPolicies:\n- containerName: <container_name>\nmode: \"Off\"\nIn this example:\n<container_name>\nrefers to the name of the container within the pod for which you want to exclude scaling.\nmode: \"Off\"\nspecifies that the VPA should not apply any autoscaling actions to this particular container.\nBy configuring the VPA in this way, you can ensure that only specific containers within your pods are subject to autoscaling, while others remain unaffected. This flexibility allows you to fine-tune the scaling behavior according to the requirements of your workload.\n...\nHPA vs. VPA: Which One to Use?\nChoosing between HPA and VPA depends on your application’s requirements:\nHPA\nis ideal for stateless applications that can easily scale horizontally by adding more pods. It’s useful when you need to handle variable workloads and ensure high availability.\nVPA\nis suitable for applications where scaling horizontally is not feasible or when you need to optimize resource usage for individual pods. It’s beneficial for stateful applications or those with varying resource needs.\n...\nConclusion\nKubernetes autoscaling, through HPA and VPA, provides robust mechanisms to manage application scalability and resource optimization. By understanding and implementing these autoscaling strategies, you can ensure that your applications are resilient, performant, and cost-effective.\n...\nSource Code\nYou’re invited to explore our",
+        "kube-scheduler\nKube-scheduler is a verbose policy-rich engine that evaluates workload  requirements and attempts to place it on a matching resource. These  requirements can include such things as general hardware reqs, affinity,  anti-affinity, and other custom resource requirements.\nNode\nComponents\nNode Components\nKubelet\nKube-proxy\nContainer runtime engine\nkubelet\nActs as the node agent responsible for managing pod lifecycle on its host.  Kubelet understands YAML container manifests that it can read from several  sources:\nFile path\nHTTP Endpoint\nEtcd watch acting on any changes\nHTTP Server mode accepting container manifests over a simple API.\nkube-proxy\nManages the network rules on each node and performs connection  forwarding or load balancing for Kubernetes cluster services.\nAvailable Proxy Modes:\nUserspace\niptables\nipvs (alpha in 1.8)\nContainer Runtime\nWith respect to Kubernetes, A container runtime is a CRI (Container Runtime Interface)  compatible application that executes and manages containers.\nContainerd (docker)\nCri-o\nRkt\nKata (formerly clear and hyper)\nVirtlet (VM CRI compatible runtime)\nAdditional Services\nKube-dns - Provides cluster wide DNS Services. Services are resolvable to\n<service>.<namespace>.svc.cluster.local.\nHeapster - Metrics Collector for kubernetes cluster, used by some resources  such as the Horizontal Pod Autoscaler. (required for kubedashboard metrics)\nKube-dashboard - A general purpose web based UI for kubernetes.\nNetworking",
+        "git clone https://github.com/kubernetes/autoscaler.git\nNavigate to the VPA Directory: Change your current directory to the\nautoscaler\ndirectory, which contains the VPA source code:\ncd autoscaler\nRun the Installation Script: Inside the\nautoscaler\ndirectory, run the installation script\nvpa-up.sh\n. This script sets up the necessary components for VPA in your Kubernetes cluster:\n./hack/vpa-up.sh\nThis script will install the Vertical Pod Autoscaler components, including custom resources, controllers, and other required resources, into your Kubernetes cluster.\nVerify Installation: Once the installation script has completed successfully, verify that the VPA components are installed and running in your cluster:\nkubectl get pods -n kube-system | grep vpa\nYou should see pods related to Vertical Pod Autoscaler running in the\nkube-system\nnamespace.\nStep 2: Create a Deployment\nCreate a file named\nvpa-deployment.yaml\nwith the following content:\napiVersion: apps/v1\nkind: Deployment\nmetadata:\nname: high-cpu-utilization-deployment\nspec:\nreplicas: 2\nselector:\nmatchLabels:\napp: cpu-utilization-app\ntemplate:\nmetadata:\nlabels:\napp: cpu-utilization-app\nspec:\ncontainers:\n- name: cpu-utilization-container\nimage: ubuntu\ncommand: [\"/bin/sh\", \"-c\", \"apt-get update && apt-get install -y stress-ng && while true; do stress-ng --cpu 1; done\"]\nresources:\nlimits:\ncpu: \"0.05\"\nrequests:\ncpu: \"0.05\"\nThis deployment repeatedly runs a CPU stress test using the `\nstress-ng"
+      ],
+      "context_sources": [
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Kubernetes Horizontal Pod Autoscaler vs Vertical Pod Autoscaler differences",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: openai/gpt-oss-120b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "openai/gpt-oss-120b"
+      },
+      "latency_s": 28.2,
+      "error": null
+    },
+    {
+      "id": "R05",
+      "domain": "pods_autoscale",
+      "question": "How do you install the Metrics Server for Kubernetes pod autoscaling?",
+      "reference": "Run kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml to install the Metrics Server. Then verify the installation with kubectl get pods -n kube-system | grep metrics-server.",
+      "relevant_contexts": [
+        "Use kubectl apply to download and apply the Components manifest directly from the latest release of the Metrics Server:\n\n$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml\n\nThis command fetches the YAML manifest for the latest release of the Metrics Server from its GitHub repository and applies it to your Kubernetes cluster.",
+        "After applying the manifest, verify that the Metrics Server pods are running successfully. You can check the pods in the kube-system namespace:\nkubectl get pods -n kube-system | grep metrics-server\nYou should see pods related to the Metrics Server running and ready."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Install the Metrics Server by applying its components manifest with kubectl.  \n\nDetails:\n- Use kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml to download and apply the latest Metrics Server manifest.  \n- Verify the Metrics Server pods are running: kubectl get pods -n kube-system | grep metrics-server.  \n- Confirm metric collection by querying the API: kubectl top nodes and kubectl top pods --all-namespaces.",
+      "contexts": [
+        "A Hands-On Guide to Kubernetes Horizontal & Vertical Pod Autoscalers\n⎈ A Hands-On Guide to Kubernetes Horizontal & Vertical Pod Autoscalers 🛠️\n⇢ HPA & VPA in Kubernetes with a Practical Example\nAnvesh Muppeda\nJun 3, 2024 · 11 min read\nHPA & VPA in Kubernetes by Anvesh Muppeda\nIn the world of container orchestration, Kubernetes has emerged as the de facto standard. One of its powerful features is autoscaling, which helps maintain application performance and optimize resource usage. In this post, we’ll dive into two main types of autoscaling in Kubernetes:\nHorizontal Pod Autoscaling (HPA)\nand\nVertical Pod Autoscaling (VPA)\n.\nIntroduction to Kubernetes Autoscaling\nAutoscaling in Kubernetes ensures that your application can handle varying loads by automatically adjusting the number of running pods or the resources allocated to them. This dynamic adjustment is crucial for maintaining application performance, optimizing resource usage, and reducing operational costs.\nHPA & VPA Animation\n...\nMetric Server Setup\nBefore testing\nHorizontal Pod Autoscaler (HPA)\nand\nVertical Pod Autoscaler (VPA)\n, it’s essential to have the Metrics Server installed in your Kubernetes cluster. The Metrics Server collects resource usage metrics from the cluster’s nodes and pods, which are necessary for autoscaling decisions.",
+        "You can install the Metrics Server using either a YAML manifest or the official Helm chart. To install the latest release of the Metrics Server from the YAML manifest, follow these steps:\nDownload the Components Manifest:\nUse\nkubectl apply\nto download and apply the Components manifest directly from the latest release of the Metrics Server:\n$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml\nThis command fetches the YAML manifest for the latest release of the Metrics Server from its GitHub repository and applies it to your Kubernetes cluster.\n2.\nVerify Installation:\nAfter applying the manifest, verify that the Metrics Server pods are running successfully. You can check the pods in the\nkube-system\nnamespace:\nkubectl get pods -n kube-system | grep metrics-server\nYou should see pods related to the Metrics Server running and ready.\n3.\nConfirm Metrics Collection:\nOnce the Metrics Server is up and running, you can confirm that it’s collecting metrics by querying the API. For example, you can retrieve the CPU and memory usage metrics for nodes and pods:\n$ kubectl top nodes\n$ kubectl top pods --all-namespaces\nIf the Metrics Server is properly installed and functioning, you should see CPU and memory usage metrics for nodes and pods in your cluster.\nWith the Metrics Server installed and collecting metrics, you can proceed to test the Horizontal Pod Autoscaler (\nHPA\n) and Vertical Pod Autoscaler (\nVPA",
+        "With the Metrics Server installed and collecting metrics, you can proceed to test the Horizontal Pod Autoscaler (\nHPA\n) and Vertical Pod Autoscaler (\nVPA\n) functionalities in your Kubernetes cluster.\n...\nHorizontal Pod Autoscaling (HPA)\nWhat is HPA?\nHorizontal Pod Autoscaling (HPA)\nautomatically scales the number of pods in a replication controller, deployment, or replica set based on observed CPU utilization (or other select metrics). This allows your application to scale out (add more pods) or scale in (reduce the number of pods) in response to load changes.\nHow Does HPA Work?\nHPA operates by:\nMonitoring Metrics:\nHPA continuously monitors the specified metrics (e.g., CPU usage, memory usage, custom metrics).\nEvaluating Thresholds:\nIt compares the current metric values against predefined thresholds.\nScaling Pods:\nIf the metric values exceed the thresholds, HPA increases the number of pods. Conversely, if the values drop below the thresholds, it decreases the number of pods.\nAdvantages of HPA\nElasticity\n: Automatically adjusts the number of pods to meet current demand.\nCost-Efficiency:\nOptimizes resource usage by adding or removing pods as needed.\nPerformance\n: Helps maintain application performance during high traffic periods.\nHPA Practical Example\nTo set up HPA, you need to define an\nHPA\nobject in your Kubernetes cluster.\nLet’s deploy an example using\nHPA\n.\nStep 1: Create a Deployment\nCreate a file named\nhpa-deployment.yaml\nwith the following content:\napiVersion: apps/v1",
+        "We increased the CPU metrics in the above demo and then manually applied the changes to scale the pod. We can do this automatically by using the\nupdateMode: “Auto”\nparameter.\nThis Vertical Pod Autoscaler (VPA) automatically adjusts the CPU and memory requests and limits for the `high-cpu-utilization-deployment` to ensure efficient resource usage, within specified bounds (100m to 200m CPU and 50Mi to 500Mi memory). It targets all containers in the deployment for resource management.\nApply the VPA:\n$ kubectl apply -f vpa.yaml\nStep 4: Testing\nFirst, let’s check the initial CPU utilization of the target pods:\n$ kubect top po\nNAME\nCPU(cores)\nMEMORY(bytes)\nhigh-cpu-utilization-deployment-78cc948dfb-fqbq9\n50m\n13Mi\nhigh-cpu-utilization-deployment-78cc948dfb-qtbt8\n50m\n9Mi\nVerify the CPU requests for the pods:\n$ kubectl get po -o jsonpath='{.items[*].spec.containers[*].resources.requests.cpu}'\n50m 50m\nAs seen, the two target pods are consuming their maximum CPU request since we are generating CPU load on them.\nNext, check the VPA status:\n$ kubectl get vpa\nNAME\nMODE\nCPU\nMEM\nPROVIDED\nAGE\nstress-vpa\nAuto\n100m\n262144k\nTrue\n2m5s\nWait for some time and then check the pod status again:\n$ kubectl get po\nNAME\nREADY\nSTATUS\nRESTARTS\nAGE\nhigh-cpu-utilization-deployment-78cc948dfb-wvfkm\n1/1\nRunning\n0\n66s\nhigh-cpu-utilization-deployment-78cc948dfb-z7f87\n1/1\nRunning\n0\n2m6s\nCheck the updated CPU requests:\n$ kubectl get po -o jsonpath='{.items[*].spec.containers[*].resources.requests.cpu}'\n100m 100m%",
+        "git clone https://github.com/kubernetes/autoscaler.git\nNavigate to the VPA Directory: Change your current directory to the\nautoscaler\ndirectory, which contains the VPA source code:\ncd autoscaler\nRun the Installation Script: Inside the\nautoscaler\ndirectory, run the installation script\nvpa-up.sh\n. This script sets up the necessary components for VPA in your Kubernetes cluster:\n./hack/vpa-up.sh\nThis script will install the Vertical Pod Autoscaler components, including custom resources, controllers, and other required resources, into your Kubernetes cluster.\nVerify Installation: Once the installation script has completed successfully, verify that the VPA components are installed and running in your cluster:\nkubectl get pods -n kube-system | grep vpa\nYou should see pods related to Vertical Pod Autoscaler running in the\nkube-system\nnamespace.\nStep 2: Create a Deployment\nCreate a file named\nvpa-deployment.yaml\nwith the following content:\napiVersion: apps/v1\nkind: Deployment\nmetadata:\nname: high-cpu-utilization-deployment\nspec:\nreplicas: 2\nselector:\nmatchLabels:\napp: cpu-utilization-app\ntemplate:\nmetadata:\nlabels:\napp: cpu-utilization-app\nspec:\ncontainers:\n- name: cpu-utilization-container\nimage: ubuntu\ncommand: [\"/bin/sh\", \"-c\", \"apt-get update && apt-get install -y stress-ng && while true; do stress-ng --cpu 1; done\"]\nresources:\nlimits:\ncpu: \"0.05\"\nrequests:\ncpu: \"0.05\"\nThis deployment repeatedly runs a CPU stress test using the `\nstress-ng"
+      ],
+      "context_sources": [
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: install Metrics Server for Kubernetes pod autoscaling guideinstall Metrics Server for Kubernetes pod autoscaling guide",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: openai/gpt-oss-120b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "openai/gpt-oss-120b"
+      },
+      "latency_s": 7.99,
+      "error": null
+    },
+    {
+      "id": "R06",
+      "domain": "pods_autoscale",
+      "question": "Which kubectl commands confirm that the Metrics Server is collecting data?",
+      "reference": "Run kubectl top nodes and kubectl top pods --all-namespaces. If the Metrics Server is properly installed and functioning, both commands return CPU and memory usage metrics for the nodes and pods in the cluster.",
+      "relevant_contexts": [
+        "Once the Metrics Server is up and running, you can confirm that it's collecting metrics by querying the API. For example, you can retrieve the CPU and memory usage metrics for nodes and pods:\n\n$ kubectl top nodes\n$ kubectl top pods --all-namespaces\n\nIf the Metrics Server is properly installed and functioning, you should see CPU and memory usage metrics for nodes and pods in your cluster."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "kubectl top nodes and kubectl top pods --all-namespaces  \n\nDetails:\n- `kubectl top nodes` retrieves CPU and memory usage metrics for nodes.  \n- `kubectl top pods --all-namespaces` retrieves CPU and memory usage metrics for pods across all namespaces.  \n- If the Metrics Server is properly installed and functioning, these commands should display CPU and memory usage metrics for nodes and pods in the cluster.",
+      "contexts": [
+        "You can install the Metrics Server using either a YAML manifest or the official Helm chart. To install the latest release of the Metrics Server from the YAML manifest, follow these steps:\nDownload the Components Manifest:\nUse\nkubectl apply\nto download and apply the Components manifest directly from the latest release of the Metrics Server:\n$ kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml\nThis command fetches the YAML manifest for the latest release of the Metrics Server from its GitHub repository and applies it to your Kubernetes cluster.\n2.\nVerify Installation:\nAfter applying the manifest, verify that the Metrics Server pods are running successfully. You can check the pods in the\nkube-system\nnamespace:\nkubectl get pods -n kube-system | grep metrics-server\nYou should see pods related to the Metrics Server running and ready.\n3.\nConfirm Metrics Collection:\nOnce the Metrics Server is up and running, you can confirm that it’s collecting metrics by querying the API. For example, you can retrieve the CPU and memory usage metrics for nodes and pods:\n$ kubectl top nodes\n$ kubectl top pods --all-namespaces\nIf the Metrics Server is properly installed and functioning, you should see CPU and memory usage metrics for nodes and pods in your cluster.\nWith the Metrics Server installed and collecting metrics, you can proceed to test the Horizontal Pod Autoscaler (\nHPA\n) and Vertical Pod Autoscaler (\nVPA",
+        "This command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\nOnce complete, you should see a message like:\n🏄  Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default\nVerifying Kubernetes Installation\nLet's verify that our Kubernetes cluster is running correctly by checking the node status:\nkubectl get nodes\nYou should see output similar to this:\nNAME       STATUS   ROLES           AGE     VERSION\nminikube   Ready    control-plane   1m      v1.26.3\nAlso, check that the core Kubernetes components are running:\nkubectl get pods -n kube-system\nYou should see several pods running, including components like kube-apiserver, kube-controller-manager, and others.\nNow that we have a running Kubernetes cluster, we're ready to create and monitor jobs.\nCreating Your First Kubernetes Job\nIn this step, we'll create a simple Kubernetes job that will run a container, perform a task, and then complete. This will give us something to monitor in the following steps.\nUnderstanding Kubernetes Jobs\nA Kubernetes Job is a controller that creates one or more pods and ensures they successfully terminate. Jobs are useful for batch processes, one-time tasks, or any task that should run to completion rather than indefinitely.\nCreating a Job Configuration File",
+        "With the Metrics Server installed and collecting metrics, you can proceed to test the Horizontal Pod Autoscaler (\nHPA\n) and Vertical Pod Autoscaler (\nVPA\n) functionalities in your Kubernetes cluster.\n...\nHorizontal Pod Autoscaling (HPA)\nWhat is HPA?\nHorizontal Pod Autoscaling (HPA)\nautomatically scales the number of pods in a replication controller, deployment, or replica set based on observed CPU utilization (or other select metrics). This allows your application to scale out (add more pods) or scale in (reduce the number of pods) in response to load changes.\nHow Does HPA Work?\nHPA operates by:\nMonitoring Metrics:\nHPA continuously monitors the specified metrics (e.g., CPU usage, memory usage, custom metrics).\nEvaluating Thresholds:\nIt compares the current metric values against predefined thresholds.\nScaling Pods:\nIf the metric values exceed the thresholds, HPA increases the number of pods. Conversely, if the values drop below the thresholds, it decreases the number of pods.\nAdvantages of HPA\nElasticity\n: Automatically adjusts the number of pods to meet current demand.\nCost-Efficiency:\nOptimizes resource usage by adding or removing pods as needed.\nPerformance\n: Helps maintain application performance during high traffic periods.\nHPA Practical Example\nTo set up HPA, you need to define an\nHPA\nobject in your Kubernetes cluster.\nLet’s deploy an example using\nHPA\n.\nStep 1: Create a Deployment\nCreate a file named\nhpa-deployment.yaml\nwith the following content:\napiVersion: apps/v1",
+        "Using JSONPath for Custom Output\nKubernetes allows you to use JSONPath to extract specific fields from the output of kubectl commands. This is useful for focusing on particular aspects of your jobs:\nkubectl get job labeled-job -o jsonpath='{.status.succeeded}'\nThis command will output the number of succeeded pods for the labeled-job.\nTo get the creation time of a job:\nkubectl get job labeled-job -o jsonpath='{.metadata.creationTimestamp}'\nCreating a CronJob for Scheduled Execution\nFor tasks that need to run on a schedule, Kubernetes provides CronJobs. Let's create a simple CronJob:\ncd ~/project\nnano simple-cronjob.yaml\nCopy and paste the following YAML content:\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: simple-cronjob\nspec:\nschedule: \"*/1 * * * *\" ## Run every minute\njobTemplate:\nspec:\ntemplate:\nspec:\ncontainers:\n- name: hello\nimage: busybox:1.28\ncommand: [\"sh\", \"-c\", 'date; echo \"Hello from CronJob\"']\nrestartPolicy: Never\nSave the file and exit nano, then create the CronJob:\nkubectl apply -f simple-cronjob.yaml\nCheck that the CronJob was created:\nkubectl get cronjobs\nYou should see output similar to:\nNAME             SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE\nsimple-cronjob   */1 * * * *   False     0        <none>          10s\nWait a minute or two, then check for jobs created by the CronJob:\nkubectl get jobs\nYou should see jobs with names like simple-cronjob-<timestamp>.\nTo view the logs of the most recent CronJob execution, first find the pod:",
+        "Scenario: Periodic model retraining with new data\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: ml-model-training\nspec:\nschedule: \"0 4 * * 1\"  # Mondays at 4 AM\njobTemplate:\nspec:\ntemplate:\nspec:\ncontainers:\n- name: model-trainer\nimage: tensorflow/tensorflow:2.8.0-gpu\ncommand: [\"python\", \"train_model.py\"]\nresources:\nrequests:\nnvidia.com/gpu: 1\ncpu: 4000m\nmemory: 8Gi\nlimits:\nnvidia.com/gpu: 1\ncpu: 8000m\nmemory: 16Gi\nvolumeMounts:\n- name: training-data\nmountPath: /data\n- name: model-output\nmountPath: /models\nvolumes:\n- name: training-data\npersistentVolumeClaim:\nclaimName: training-data-pvc\n- name: model-output\npersistentVolumeClaim:\nclaimName: model-storage-pvc\nrestartPolicy: Never\nbackoffLimit: 1\nconcurrencyPolicy: Forbid\nML Training Pipeline\nMonitoring and Observability\nMonitoring Job Health\nKubernetes Job Metrics Dashboard\nKey Metrics to Track\n1. Job Success Rate\n# Prometheus query\nrate(kube_job_status_succeeded[5m]) / rate(kube_job_status_completed[5m])\n2. Job Duration\n# Average job duration\navg(kube_job_status_completion_time - kube_job_status_start_time)\n3. Failed Jobs\n# Count of failed jobs\nincrease(kube_job_status_failed[1h])\nLogging Best Practices\nImplement structured logging in your job containers:\nimport logging\nimport json\nfrom datetime import datetime\nclass StructuredLogger:\ndef __init__(self, job_name):\nself.job_name = job_name\nself.logger = logging.getLogger(job_name)\ndef log(self, level, message, **kwargs):\nlog_data = {"
+      ],
+      "context_sources": [
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: kubectl commands to confirm Metrics Server is collecting datakubectl commands to confirm Metrics Server is collecting data",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: openai/gpt-oss-120b-maas"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "openai/gpt-oss-120b-maas"
+      },
+      "latency_s": 23.24,
+      "error": null
+    },
+    {
+      "id": "R07",
+      "domain": "job_management",
+      "question": "What Databricks CLI command retrieves the details of a specific job?",
+      "reference": "Use databricks jobs get <job-id>. For example, databricks jobs get 478701692316314 returns the full JSON configuration of that job including its settings, creator username, task definitions, and max concurrent runs.",
+      "relevant_contexts": [
+        "To print information about an individual job in a workspace, run the following command:\n\ndatabricks jobs get <job-id>\n\n# Example\ndatabricks jobs get 478701692316314\n\nThis command returns JSON with fields like job_id, settings, creator_user_name, and task configuration."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "databricks jobs get <job-id>\nDetails:\n- The command `databricks jobs get <job-id>` prints information about an individual job in a workspace.\n- An example command is `databricks jobs get 478701692316314`.\n- This command returns JSON output containing fields such as `\"created_time\": 1730983530082`, `\"creator_user_name\": \"someone@example.com\"`, `\"job_id\": 478701692316314`, and `\"run_as_user_name\": \"someone@example.com\"`.\n- The `jobs` command group enables you to manage your jobs and job runs with actions such as `create`, `delete`, and `get`.\n- The CLI command `databricks jobs get` maps to the REST API request `GET/api/2.2/jobs/get`.",
+      "contexts": [
+        "Databricks REST API\nIf none of the above options work for your specific use case, you can use the Databricks REST API directly. Use the REST API directly for use cases such as automating processes where an SDK in your preferred programming language is not currently available.\nGet started with the Databricks CLI\nTo install and configure authentication for the Databricks CLI, see\nInstall or update the Databricks CLI\nand\nAuthentication for the Databricks CLI\n.\nThe Databricks CLI has command groups for Databricks features, including one for jobs, that contain a set of related commands. The\njobs\ncommand group enables you to manage your jobs and job runs with actions such as\ncreate\n,\ndelete\n, and\nget\n. Because the CLI wraps the Databricks REST API, most CLI commands map to a REST API request. For example,\ndatabricks jobs get\nmaps to\nGET/api/2.2/jobs/get\n.\nTo output more detailed usage and syntax information for the jobs command group, use the\n-h\nflag:\ndatabricks jobs -h\ndatabricks jobs <command-name> -h\ndatabricks jobs <command-name> <subcommand-name> -h\nExample: Retrieve a job using the CLI\nTo print information about an individual job in a workspace, run the following command:\ndatabricks jobs get <job-id>\n# Example\ndatabricks jobs get 478701692316314\nThis command returns JSON:\n{\n\"created_time\": 1730983530082,\n\"creator_user_name\": \"someone@example.com\",\n\"job_id\": 478701692316314,\n\"run_as_user_name\": \"someone@example.com\",\n\"settings\": {\n\"email_notifications\": {",
+        "There are three ways to run your job when using the command line.\nScheduled\n. If the job definition (in JSON) includes a schedule, then the job will automatically run on the schedule.\nTrigger with\nrun-now\n. The\ndatabricks jobs run-now\nCLI command triggers a run for a job that you have already created.\nTrigger with\nsubmit\n. The\ndatabricks jobs submit\nCLI command takes a job definition and triggers a run for the job.\nWith\nsubmit\n, the job is not saved, and isn't visible in the UI. It runs once, and when it is done, it no longer exists as a job.\nGet started with the Databricks SDK\nDatabricks provides SDKs that allow you to automate operations using popular programming languages such as Python, Java, and Go. This section shows you how to get started using the Python SDK to create and manage jobs on Databricks.\nYou can use the Databricks SDK from your Databricks notebook or from your local development machine. If you are using your local development machine, ensure you first complete\nGet started with the Databricks SDK for Python\n.\nNote:\nIf you are developing from a Databricks notebook and are using a cluster that uses Databricks Runtime 12.2 LTS and below, you must install the Databricks SDK for Python first. See\nInstall or upgrade the Databricks SDK for Python\n.\nExample: Create a job using the Python SDK\nThe following example notebook code creates a job that runs an existing notebook. It retrieves the existing notebook's path and related job settings with prompts.",
+        "run-now\n. The\njobs.run_now\nAPI triggers a run for a job that you have already created.\nTrigger with\nsubmit\n. The\njobs.runs.submit\nAPI takes a job definition and triggers a run for the job.\nGet started with the Databricks REST API\nNote:\nDatabricks recommends using the\nDatabricks CLI\nand a\nDatabricks SDK\n, unless you are using a programming language that does not have a corresponding Databricks SDK.\nThe following example makes a request to the Databricks REST API to retrieve details for a single job. It assumes the\nDATABRICKS_HOST\nand\nDATABRICKS_TOKEN\nenvironment variables have been set as described in\nPerform personal access token authentication\n.\n$ curl --request GET \"https://${DATABRICKS_HOST}/api/2.2/jobs/get\" \\\n--header \"Authorization: Bearer ${DATABRICKS_TOKEN}\" \\\n--data '{ \"job\": \"11223344\" }'\nFor information on using the Databricks REST API see the\nDatabricks REST API reference documentation\n.\nView jobs as code\nFrom the Databricks workspace you can view the JSON, YAML, or Python representation of a job.\nIn your Databricks workspace's sidebar, click\nJobs & Pipelines\nand select a job.\nClick the kebab to the left of the\nRun now\nbutton, then click\nView as code\n:\nClick\nYAML\n,\nPython\n, or\nJSON\nto view the job as code in that language.\nFor YAML, click\nCopy\n, then paste the code directly into\nDatabricks Asset Bundles configuration\n*.yaml\nfiles to include the existing job in a bundle.\nFor Python, choose\nDatabricks SDK\nor\nDatabricks Asset Bundles\n, then click\nCopy\n.",
+        "Databricks Asset Bundles configuration\n*.yaml\nfiles to include the existing job in a bundle.\nFor Python, choose\nDatabricks SDK\nor\nDatabricks Asset Bundles\n, then click\nCopy\n.\nThe Python code for the SDK can be used to create the job in notebooks or locally when using the\nDatabricks Python SDK\n.\nThe Python code for bundles can be used to include the job in a bundle using Python. See\nBundle configuration in Python\n.\nFor JSON, click\nCopy\nand use the code to create, update, or get the job using the\nDatabricks CLI\n, the\nDatabricks SDKs\n, or the\nDatabricks REST API\n.\nClean up\nTo delete any jobs you just created, run\ndatabricks jobs delete <job-id>\nfrom the Databricks CLI or delete the job directly from the Databricks workspace UI.\nNext steps\nTo learn more about the Databricks CLI, see\nWhat is the Databricks CLI?\nand\nDatabricks CLI commands\nto learn about other command groups.\nTo learn more about the Databricks SDK, see\nDatabricks SDKs\n.\nTo learn more about CI/CD using Databricks refer to\nDatabricks Asset Bundles\nand\nDatabricks Terraform provider\nand\nTerraform CDKTF\nfor Databricks.\nFor a comprehensive overview of all developer tooling, see\nLocal development tools\n.",
+        "Automate job creation and management\nThis article shows you how to get started with developer tools to automate the creation and management of jobs. It introduces you to the Databricks CLI, the Databricks SDKs, and the REST API.\nNote:\nThis article provides examples for creating and managing jobs using the Databricks CLI, the Databricks Python SDK, and the REST API as an easy introduction to those tools. To programmatically manage jobs as part of CI/CD use\nDatabricks Asset Bundles\nor the\nDatabricks Terraform provider\n.\nCompare tools\nThe following table compares the Databricks CLI, the Databricks SDKs, and the REST API for programmatically creating and managing jobs. To learn about all available developer tools, see\nLocal development tools\n.\nTool\nDescription\nDatabricks CLI\nAccess Databricks functionality using the Databricks command-line interface (CLI), which wraps the REST API. Use the CLI for one-off tasks such as experimentation, shell scripting, and invoking the REST API directly.\nDatabricks SDKs\nDevelop applications and create custom Databricks workflows using a Databricks SDK, available for Python, Java, Go, or R. Instead of sending REST API calls directly using curl or Postman, you can use an SDK to interact with Databricks.\nDatabricks REST API"
+      ],
+      "context_sources": [
+        {
+          "source": "job_management.html",
+          "source_type": "true"
+        },
+        {
+          "source": "job_management.html",
+          "source_type": "true"
+        },
+        {
+          "source": "job_management.html",
+          "source_type": "true"
+        },
+        {
+          "source": "job_management.html",
+          "source_type": "true"
+        },
+        {
+          "source": "job_management.html",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Databricks CLI command to retrieve details of a specific jobDatabricks CLI command to retrieve details of a specific job",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 56.11,
+      "error": null
+    },
+    {
+      "id": "R08",
+      "domain": "job_management",
+      "question": "When should you use the Databricks REST API instead of the CLI or SDK?",
+      "reference": "Use the Databricks REST API directly when none of the supported SDK languages (Python, Java, Go, R) are available for your use case, or when you need to automate processes for which no SDK currently exists in your preferred programming language.",
+      "relevant_contexts": [
+        "If none of the above options work for your specific use case, you can use the Databricks REST API directly. Use the REST API directly for use cases such as automating processes where an SDK in your preferred programming language is not currently available."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Great question! Choosing between the Databricks REST API, the CLI (Command Line Interface), and the SDKs (Software Development Kits) depends largely on your specific use case, environment, and what you're trying to achieve.\n\nHere’s a breakdown of when you should prefer the **REST API** over the CLI or SDKs:\n\n### 1. **When You Need Maximum Flexibility and Control**\n   - **Custom Logic:** If you need to implement complex, custom workflows that aren’t easily expressed in a CLI command or standard SDK method, the REST API gives you direct access to all endpoints.\n   - **Non-Python/Java Environments:** While Databricks offers SDKs for Python and Java, the REST API is language-agnostic. If you’re working in Go, Node.js, C#, or another language without an official Databricks SDK, the REST API is your best bet.\n   - **Fine-Grained Request Control:** You can customize headers, timeouts, retries, and error handling exactly how you want, which is especially useful in production-grade applications.\n\n### 2. **When Integrating with Existing Systems or Pipelines**\n   - **CI/CD Pipelines:** Many CI/CD tools (like Jenkins, GitHub Actions, GitLab CI) have native HTTP request capabilities. Using the REST API directly can be simpler than installing and configuring the Databricks CLI or SDK in those environments.\n   - **Microservices Architecture:** If you’re building a microservice that needs to interact with Databricks, using the REST API via a standard HTTP client is often more lightweight and decoupled than bundling a full SDK.\n\n### 3. **When You Need to Access Endpoints Not Exposed in SDKs/CLI**\n   - **Newer or Niche Features:** Sometimes, new Databricks features are available via the REST API before they are fully integrated into the SDKs or CLI.\n   - **Internal or Advanced Endpoints:** Some advanced or internal endpoints may only be accessible via the REST API.\n\n### 4. **When You Want to Avoid Dependency Overhead**\n   - **Lightweight Deployments:** In serverless functions (like AWS Lambda, Azure Functions) or minimal container images, adding a full SDK might introduce unnecessary dependencies. A simple HTTP request to the REST API keeps your footprint small.\n\n### 5. **When You’re Building a Custom Tool or Wrapper**\n   - If you’re developing your own tool, library, or wrapper around Databricks, using the REST API as the foundation gives you the most control and ensures you’re not limited by the abstractions provided by the official SDKs.\n\n---\n\n### When to Use CLI or SDK Instead?\n\n- **CLI:** Best for quick, one-off tasks, scripting, and interactive use from a terminal. It’s great for developers who prefer command-line workflows.\n- **SDKs (Python/Java):** Best for application development where you want type safety, auto-completion, structured error handling, and a more ergonomic, object-oriented interface. They abstract away the details of HTTP requests, authentication, and serialization.\n\n### Summary Table\n\n| Feature | REST API | CLI | SDKs (Python/Java) |\n| :--- | :--- | :--- | :--- |\n| **Flexibility** | High | Medium | Medium |\n| **Ease of Use** | Low (manual HTTP) | High (simple commands) | High (structured code) |\n| **Language Support** | Any (via HTTP) | Shell/Scripting | Python, Java |\n| **Dependency Overhead** | Low | Medium | Medium/High |\n| **Best For** | Custom integrations, non-Python/Java, CI/CD | Quick tasks, scripting | Application development |\n\n**In short:** Use the **REST API** when you need language-agnostic access, maximum control, lightweight integration, or access to endpoints not covered by SDKs/CLI. Use **CLI** for quick scripting and **SDKs** for robust application development in Python or Java.",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 5.81,
+      "error": null
+    },
+    {
+      "id": "R09",
+      "domain": "job_management",
+      "question": "What are the three main developer tools for managing Databricks jobs programmatically?",
+      "reference": "The three tools are: (1) Databricks CLI — wraps the REST API, used for one-off tasks and shell scripting; (2) Databricks SDKs — for building applications in Python, Java, Go, or R; (3) Databricks REST API — used directly when no SDK is available for your language.",
+      "relevant_contexts": [
+        "The following table compares the Databricks CLI, the Databricks SDKs, and the REST API:\n\nDatabricks CLI: Access Databricks functionality using the command-line interface (CLI), which wraps the REST API. Use the CLI for one-off tasks such as experimentation, shell scripting, and invoking the REST API directly.\nDatabricks SDKs: Develop applications and create custom Databricks workflows using a Databricks SDK, available for Python, Java, Go, or R.\nDatabricks REST API: Use directly for use cases where an SDK is not available."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Hello! I can certainly help with that. When it comes to managing Databricks jobs programmatically, there are three primary tools or interfaces that developers typically use:\n\n1. **Databricks REST API**: This is the most direct and flexible method. It allows you to create, update, run, and monitor jobs using standard HTTP requests. It’s ideal for integrating Databricks job management into custom applications or CI/CD pipelines.\n2. **Databricks CLI (Command Line Interface)**: A powerful command-line tool that lets you manage jobs from your terminal. It’s great for scripting, automation, and quick administrative tasks without needing to write full API code.\n3. **Databricks SDKs (Software Development Kits)**: Databricks provides official SDKs for popular languages like **Python** and **Java**. These SDKs wrap the REST API in a more developer-friendly, object-oriented interface, making it easier to manage jobs within your application code.\n\nEach of these tools has its strengths, and many teams use a combination of them depending on their specific automation and integration needs. Let me know if you’d like examples or more details on any of these!",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 65.7,
+      "error": null
+    },
+    {
+      "id": "R10",
+      "domain": "cronjobs",
+      "question": "What are the valid restart policy values for a Kubernetes Job pod?",
+      "reference": "A Kubernetes Job supports two valid restart policies: OnFailure (the kubelet restarts the container within the same pod if it crashes) and Never (the pod is marked as failed and the Job controller creates a new pod). The Always policy is not allowed because it would prevent pods from ever completing.",
+      "relevant_contexts": [
+        "Jobs have strict requirements for Pod restart policies:\nOnFailure: Kubelet restarts the container within the same Pod if it crashes.\nNever: Entire Pod is marked as failed, Job controller creates a new Pod.\nAlways: Not allowed (would prevent Pod from ever completing)."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "The valid restart policy values for a Kubernetes Job pod are OnFailure, Never, and Always (which is not allowed).\n\nDetails:\n- OnFailure: Kubelet restarts the container within the same Pod if it crashes.\n- Never: Entire Pod is marked as failed, Job controller creates a new Pod.\n- Always: Not allowed (would prevent Pod from ever completing).",
+      "contexts": [
+        "Mastering Kubernetes Jobs and CronJobs: A Platform Engineer’s Complete Guide\nIntroduction\nAs a platform engineer, you’ve likely encountered scenarios where you need to run one-time tasks, batch jobs, or scheduled operations in your Kubernetes clusters. Unlike long-running services managed by Deployments or StatefulSets, these finite workloads require a different approach. Enter Kubernetes Jobs and CronJobs — powerful resources designed specifically for task-oriented workloads that run to completion.\nIn this comprehensive guide, we’ll explore everything you need to know about Jobs and CronJobs, from basic concepts to advanced patterns, real-world use cases, troubleshooting strategies, and security considerations.\nKubernetes Job Hierarchy\nUnderstanding Kubernetes Jobs\nWhat Are Jobs?\nA Kubernetes Job is a resource designed to run finite workloads that execute a task to completion. Unlike Pods created via Deployments, which run indefinitely, a Job ensures that its associated Pods complete their task and then exit successfully.\nKey Characteristics\n1. Restart Policy Requirements\nJobs have strict requirements for Pod restart policies:\nOnFailure: Kubelet restarts the container within the same Pod if it crashes.\nNever: Entire Pod is marked as failed, Job controller creates a new Pod.\nAlways: Not allowed (would prevent Pod from ever completing).\n2. API Group and Immutability\nBelongs to the batch/v1 API group (stable).\nPod template cannot be modified after Job creation.",
+        "Checking Job Status with kubectl\nThe primary tool for monitoring Kubernetes resources is kubectl. Let's use it to check the status of our job:\nkubectl get jobs\nYou should see output similar to this:\nNAME        COMPLETIONS   DURATION   AGE\nhello-job   1/1           10s        30s\nThis output shows:\nNAME: The name of the job\nCOMPLETIONS: The number of completed pods / desired completions\nDURATION: How long the job took to run\nAGE: How long since the job was created\nIf your job shows 0/1 under COMPLETIONS, it might still be running or has failed. Wait a few seconds and run the command again.\nGetting Detailed Job Information\nTo get more detailed information about a job, use the describe command:\nkubectl describe job hello-job\nThis command provides extensive information about the job, including:\nLabels and annotations\nSelector details\nParallelism and completion requirements\nPod statuses\nEvents related to the job\nLook for the Events section at the bottom, which shows important events like pod creation and completion.\nUnderstanding Job Status\nA job can have several statuses:\nActive: The job is still running\nCompleted: The job has completed successfully\nFailed: The job has failed after reaching its backoff limit\nLet's check if our job's pod has completed:\nkubectl get pods\nYou should see something like:\nNAME              READY   STATUS      RESTARTS   AGE\nhello-job-abcd1   0/1     Completed   0          1m\nThe STATUS column shows Completed, indicating that our job ran successfully.",
+        "\"helm.sh/hook-delete-policy\": before-hook-creation,hook-succeeded\nspec:\nrestartPolicy: Never\ncontainers:\n- name: test-runner\nimage: alpine/k8s:1.24.0\ncommand:\n- sh\n- -c\n- |\n# Wait for job to complete\nkubectl wait --for=condition=complete job/{{ include \"chart.fullname\" . }}-data-processor --timeout=300s\n# Verify job output\nJOB_POD=$(kubectl get pods -l job-name={{ include \"chart.fullname\" . }}-data-processor -o jsonpath='{.items[0].metadata.name}')\nkubectl logs $JOB_POD | grep \"Processing completed successfully\"\nif [ $? -eq 0 ]; then\necho \"✅ Job test passed\"\nexit 0\nelse\necho \"❌ Job test failed\"\nexit 1\nfi\nTesting Pipeline Workflow\nDisaster Recovery and Backup Strategies\n1. Job State Backup\n# Backup CronJob definitions\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: backup-job-definitions\nspec:\nschedule: \"0 6 * * *\"  # Daily at 6 AM\njobTemplate:\nspec:\ntemplate:\nspec:\nserviceAccountName: backup-sa\ncontainers:\n- name: backup-tool\nimage: bitnami/kubectl:latest\ncommand:\n- sh\n- -c\n- |\n# Create backup directory with timestamp\nBACKUP_DATE=$(date +%Y%m%d-%H%M%S)\nmkdir -p /backup/$BACKUP_DATE\n# Backup all CronJobs\nkubectl get cronjobs --all-namespaces -o yaml > /backup/$BACKUP_DATE/cronjobs.yaml\n# Backup all Jobs (recent ones)\nkubectl get jobs --all-namespaces --field-selector=status.completionTime>$(date -d '7 days ago' -Iseconds) -o yaml > /backup/$BACKUP_DATE/recent-jobs.yaml\n# Backup ConfigMaps and Secrets used by jobs",
+        "restartPolicy: Never\n3. Serverless Job Execution\n# Virtual Kubelet for serverless job execution\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: serverless-processing\nspec:\ntemplate:\nspec:\n# Use virtual kubelet for serverless execution\nnodeSelector:\ntype: virtual-kubelet\nkubernetes.io/hostname: virtual-kubelet-azure-aci\n# Serverless-optimized tolerations\ntolerations:\n- key: virtual-kubelet.io/provider\noperator: Exists\n- key: azure.com/aci\neffect: NoSchedule\ncontainers:\n- name: serverless-worker\nimage: my-app:serverless-optimized\nresources:\nrequests:\ncpu: 1000m\nmemory: 2Gi\nlimits:\ncpu: 4000m\nmemory: 8Gi\n# Fast startup configuration\nimagePullPolicy: Always\n# Optimized for serverless billing\nenv:\n- name: EXECUTION_MODE\nvalue: \"serverless\"\n- name: OPTIMIZE_FOR_COST\nvalue: \"true\"\nrestartPolicy: Never\n# Serverless-friendly timeouts\nactiveDeadlineSeconds: 1800  # 30 minutes\nttlSecondsAfterFinished: 600  # Clean up quickly\nConclusion\nThe future of Kubernetes job management is exciting, with developments in serverless execution, event-driven architectures, and AI/ML workflows. By building a solid foundation with the patterns and practices outlined in this guide, you’ll be well-prepared to evolve your job management strategies as the ecosystem continues to mature.\nFuture Roadmap",
+        "Creating a Job Configuration File\nLet's create a simple job configuration file. Open a terminal and create a new file called hello-job.yaml in your project directory:\ncd ~/project\nnano hello-job.yaml\nCopy and paste the following YAML content into the file:\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: hello-job\nspec:\ntemplate:\nspec:\ncontainers:\n- name: hello\nimage: busybox:1.28\ncommand: [\"sh\", \"-c\", 'echo \"Hello, Kubernetes!\" && sleep 5']\nrestartPolicy: Never\nbackoffLimit: 4\nThis configuration defines a job named hello-job that:\nUses the busybox:1.28 container image\nRuns a command that prints \"Hello, Kubernetes!\" and then sleeps for 5 seconds\nHas a restart policy of Never, meaning it won't restart after completion\nHas a backoffLimit of 4, meaning it will retry up to 4 times if it fails\nSave the file by pressing Ctrl+O, then Enter, and exit nano with Ctrl+X.\nCreating the Job\nNow let's create the job in our Kubernetes cluster:\nkubectl apply -f hello-job.yaml\nYou should see the output:\njob.batch/hello-job created\nCongratulations! You've just created your first Kubernetes job. In the next step, we'll learn how to monitor its status.\nMonitoring Kubernetes Job Status\nNow that we have a job running in our Kubernetes cluster, let's learn how to monitor its status. Monitoring job status is crucial for understanding whether your jobs are completing successfully or encountering errors.\nChecking Job Status with kubectl"
+      ],
+      "context_sources": [
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Kubernetes Job pod restart policy valid values",
+        "Planner model: qwen/qwen3.8-27b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 43.5,
+      "error": null
+    },
+    {
+      "id": "R11",
+      "domain": "cronjobs",
+      "question": "What are the completions and parallelism fields in a Kubernetes Job spec?",
+      "reference": "completions specifies how many pods must successfully complete before the Job is considered done (e.g., completions: 5 requires 5 successful completions). parallelism controls the maximum number of pods that can run at the same time (e.g., parallelism: 3 allows up to 3 concurrent pods).",
+      "relevant_contexts": [
+        "Two critical fields control how Jobs execute:\n\nCompletions\nSpecifies the number of Pods that must successfully complete:\nspec:\n  completions: 5  # Job completes after 5 successful Pod completions\n\nParallelism\nControls maximum concurrent Pods:\nspec:\n  parallelism: 3  # Max 3 Pods running simultaneously"
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "The `completions` field specifies the number of Pods that must successfully complete, and the `parallelism` field controls the maximum number of concurrent Pods.\n\nDetails:\n- `completions` specifies the number of Pods that must successfully complete.\n- `parallelism` controls the maximum concurrent Pods.\n- Example value for `completions`: `5` (Job completes after 5 successful Pod completions).\n- Example value for `parallelism`: `3` (Max 3 Pods running simultaneously).\n- Example value for `completions`: `10` (used with `parallelism: 5` for parallelizable workloads).\n- Example value for `parallelism`: `5` (used with `completions: 10` for parallelizable workloads).\n- Example value for `completions`: `3` (used in NonIndexed and Indexed modes).\n- Example value for `parallelism`: `2` (used in NonIndexed and Indexed modes).",
+      "contexts": [
+        "Solutions:\n# Set active deadline\nspec:\nactiveDeadlineSeconds: 3600  # Kill job after 1 hour\n# Increase parallelism for parallelizable workloads\nspec:\nparallelism: 5\ncompletions: 10\n# Use faster nodes with node affinity\nspec:\ntemplate:\nspec:\naffinity:\nnodeAffinity:\nrequiredDuringSchedulingIgnoredDuringExecution:\nnodeSelectorTerms:\n- matchExpressions:\n- key: node-type\noperator: In\nvalues: [\"high-performance\"]\nPerformance Optimization\n1. Resource Right-Sizing\nPerformance Optimization Charts\nUse Vertical Pod Autoscaler recommendations:\n# Install VPA if not present\nkubectl apply -f https://github.com/kubernetes/autoscaler/releases/download/vpa-0.13.0/vpa-release-0.13.0.yaml\n# Create VPA for job analysis\nkubectl apply -f - <<EOF\napiVersion: autoscaling.k8s.io/v1\nkind: VerticalPodAutoscaler\nmetadata:\nname: job-sizing-analysis\nspec:\ntargetRef:\napiVersion: batch/v1\nkind: Job\nname: my-analysis-job\nupdatePolicy:\nupdateMode: \"Off\"  # Just provide recommendations\nEOF\n# Check recommendations\nkubectl describe vpa job-sizing-analysis\n2. Efficient Container Images\n# Multi-stage build for smaller images\nFROM golang:1.19-alpine AS builder\nWORKDIR /app\nCOPY go.mod go.sum ./\nRUN go mod download\nCOPY . .\nRUN CGO_ENABLED=0 GOOS=linux go build -o job-runner\nFROM alpine:3.16\nRUN apk --no-cache add ca-certificates\nWORKDIR /root/\nCOPY --from=builder /app/job-runner .\nUSER 1000:1000\nCMD [\"./job-runner\"]\n3. Parallel Processing Patterns\n# Pattern 1: Fixed work distribution\napiVersion: batch/v1\nkind: Job",
+        "As you continue your Kubernetes journey, consider exploring more advanced topics like resource management, job parallelism, and integrating with external monitoring solutions like Prometheus and Grafana.",
+        "Always: Not allowed (would prevent Pod from ever completing).\n2. API Group and Immutability\nBelongs to the batch/v1 API group (stable).\nPod template cannot be modified after Job creation.\nImmutable by design for consistency.\nJob Lifecycle States\nCreating Your First Job\nHere’s a basic Job manifest example:\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: data-processor\nnamespace: batch-jobs\nspec:\ntemplate:\nspec:\ncontainers:\n- name: processor\nimage: mcr.microsoft.com/powershell:7.2-alpine-3.13\ncommand:\n- pwsh\n- -Command\n- |\nWrite-Host \"Starting data processing at $(Get-Date)\"\nStart-Sleep -Seconds 30\nWrite-Host \"Processing completed at $(Get-Date)\"\nresources:\nrequests:\ncpu: 500m\nmemory: 200Mi\nlimits:\ncpu: 600m\nmemory: 300Mi\nrestartPolicy: Never\nbackoffLimit: 3\nJob Manifest Breakdown\nAdvanced Job Patterns\nCompletions and Parallelism\nTwo critical fields control how Jobs execute:\nCompletions\nSpecifies the number of Pods that must successfully complete:\nspec:\ncompletions: 5  # Job completes after 5 successful Pod completions\nParallelism\nControls maximum concurrent Pods:\nspec:\nparallelism: 3  # Max 3 Pods running simultaneously\nParallel Job Execution Timeline\nJob Completion Modes\nNonIndexed (Default)\nAll Pods are identical:\nspec:\ncompletionMode: NonIndexed\ncompletions: 3\nparallelism: 2\nIndexed Mode\nEach Pod gets a unique completion index:\nspec:\ncompletionMode: Indexed\ncompletions: 3\nparallelism: 2\ntemplate:\nspec:\ncontainers:\n- name: worker\nimage: alpine:latest\ncommand:\n- sh\n- -c\n- |",
+        "Each Pod gets a unique completion index:\nspec:\ncompletionMode: Indexed\ncompletions: 3\nparallelism: 2\ntemplate:\nspec:\ncontainers:\n- name: worker\nimage: alpine:latest\ncommand:\n- sh\n- -c\n- |\necho \"Processing index: $JOB_COMPLETION_INDEX\"\n# Process specific data slice based on index\nNonIndexed vs Indexed Comparison\nUnderstanding CronJobs\nWhat Are CronJobs?\nA CronJob is a thin wrapper around Jobs that enables scheduling. It creates Job objects automatically based on a defined schedule using the familiar cron format.\nCronJob Architecture Flow\nSchedule Configuration\nThe schedule field uses the standard cron format:\n# ┌───────────── minute (0 - 59)\n# │ ┌───────────── hour (0 - 23)\n# │ │ ┌───────────── day of the month (1 - 31)\n# │ │ │ ┌───────────── month (1 - 12)\n# │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday)\n# │ │ │ │ │\n# * * * * *\nCommon Schedule Examples:\n# Every minute\nschedule: \"* * * * *\"\n# Every hour at minute 0\nschedule: \"0 * * * *\"\n# Daily at 2:30 AM\nschedule: \"30 2 * * *\"\n# Every Monday at 9:00 AM\nschedule: \"0 9 * * 1\"\n# Every 15 minutes\nschedule: \"*/15 * * * *\"\n# Shorthand expressions\nschedule: \"@hourly\"    # Every hour\nschedule: \"@daily\"     # Every day at midnight\nschedule: \"@weekly\"    # Every Sunday at midnight\nschedule: \"@monthly\"   # First day of each month at midnight\nschedule: \"@yearly\"    # January 1st at midnight\nCron Expression Guide\nComplete CronJob Example:\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: database-backup",
+        "NAME              READY   STATUS      RESTARTS   AGE\nhello-job-abcd1   0/1     Completed   0          1m\nThe STATUS column shows Completed, indicating that our job ran successfully.\nCreating a Job That Takes Longer\nLet's create another job that will take longer to complete so we can observe it in the Active state:\ncd ~/project\nnano long-job.yaml\nCopy and paste the following YAML content:\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: long-job\nspec:\ntemplate:\nspec:\ncontainers:\n- name: long\nimage: busybox:1.28\ncommand:\n[\n\"sh\",\n\"-c\",\n'echo \"Starting long job...\" && sleep 30 && echo \"Long job completed!\"'\n]\nrestartPolicy: Never\nbackoffLimit: 4\nSave the file and exit nano. Then create the job:\nkubectl apply -f long-job.yaml\nNow let's check its status immediately:\nkubectl get jobs\nYou should see that long-job shows 0/1 completions because it's still running. If you keep checking every few seconds, you'll eventually see it change to 1/1 after about 30 seconds.\nThis demonstrates how you can monitor the progress of your jobs in real-time using kubectl.\nAnalyzing Kubernetes Job Logs\nBeing able to view and analyze the logs from your Kubernetes jobs is essential for debugging and understanding job behavior. In this step, we'll explore how to access and analyze logs from the jobs we've created.\nGetting Pod Names for Our Jobs"
+      ],
+      "context_sources": [
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Kubernetes Job spec completions field parallelism field description and usage guideKubernetes Job spec completions field parallelism field description and usage guide",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 43.62,
+      "error": null
+    },
+    {
+      "id": "R12",
+      "domain": "cronjobs",
+      "question": "Which Kubernetes API group does a Job resource belong to?",
+      "reference": "Kubernetes Jobs belong to the batch/v1 API group, which is a stable API. The pod template within a Job is immutable and cannot be modified after the Job is created.",
+      "relevant_contexts": [
+        "2. API Group and Immutability\nBelongs to the batch/v1 API group (stable).\nPod template cannot be modified after Job creation.\nImmutable by design for consistency."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "A Job resource belongs to the batch/v1 API group.\n\nDetails:\n- The API group is batch/v1.\n- The API group is described as stable.\n- The Pod template cannot be modified after Job creation.",
+      "contexts": [
+        "Mastering Kubernetes Jobs and CronJobs: A Platform Engineer’s Complete Guide\nIntroduction\nAs a platform engineer, you’ve likely encountered scenarios where you need to run one-time tasks, batch jobs, or scheduled operations in your Kubernetes clusters. Unlike long-running services managed by Deployments or StatefulSets, these finite workloads require a different approach. Enter Kubernetes Jobs and CronJobs — powerful resources designed specifically for task-oriented workloads that run to completion.\nIn this comprehensive guide, we’ll explore everything you need to know about Jobs and CronJobs, from basic concepts to advanced patterns, real-world use cases, troubleshooting strategies, and security considerations.\nKubernetes Job Hierarchy\nUnderstanding Kubernetes Jobs\nWhat Are Jobs?\nA Kubernetes Job is a resource designed to run finite workloads that execute a task to completion. Unlike Pods created via Deployments, which run indefinitely, a Job ensures that its associated Pods complete their task and then exit successfully.\nKey Characteristics\n1. Restart Policy Requirements\nJobs have strict requirements for Pod restart policies:\nOnFailure: Kubelet restarts the container within the same Pod if it crashes.\nNever: Entire Pod is marked as failed, Job controller creates a new Pod.\nAlways: Not allowed (would prevent Pod from ever completing).\n2. API Group and Immutability\nBelongs to the batch/v1 API group (stable).\nPod template cannot be modified after Job creation.",
+        "rules:\n- apiGroups: [\"\"]\nresources: [\"secrets\", \"configmaps\"]\nverbs: [\"get\", \"list\"]\n- apiGroups: [\"\"]\nresources: [\"pods\"]\nverbs: [\"get\", \"list\", \"watch\"]\n---\napiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\nname: job-runner-binding\nnamespace: batch-jobs\nsubjects:\n- kind: ServiceAccount\nname: job-service-account\nnamespace: batch-jobs\nroleRef:\nkind: Role\nname: job-runner\napiGroup: rbac.authorization.k8s.io\n2. Security Context Best Practices\nspec:\ntemplate:\nspec:\nsecurityContext:\nrunAsNonRoot: true\nrunAsUser: 1000\nrunAsGroup: 3000\nfsGroup: 2000\nseccompProfile:\ntype: RuntimeDefault\ncontainers:\n- name: secure-job\nsecurityContext:\nallowPrivilegeEscalation: false\nreadOnlyRootFilesystem: true\ncapabilities:\ndrop:\n- ALL\nrunAsNonRoot: true\nrunAsUser: 1000\n3. Secret Management\nUse external secret management systems:\napiVersion: external-secrets.io/v1beta1\nkind: SecretStore\nmetadata:\nname: vault-backend\nspec:\nprovider:\nvault:\nserver: \"https://vault.company.com\"\npath: \"secret\"\nversion: \"v2\"\nauth:\nkubernetes:\nmountPath: \"kubernetes\"\nrole: \"job-runner\"\n---\napiVersion: external-secrets.io/v1beta1\nkind: ExternalSecret\nmetadata:\nname: job-secrets\nspec:\nrefreshInterval: 1h\nsecretStoreRef:\nname: vault-backend\nkind: SecretStore\ntarget:\nname: job-secrets\ncreationPolicy: Owner\ndata:\n- secretKey: database-password\nremoteRef:\nkey: database/config\nproperty: password\n4. Network Policies\nRestrict job network access:\napiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:",
+        "restartPolicy: Never\n3. Serverless Job Execution\n# Virtual Kubelet for serverless job execution\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: serverless-processing\nspec:\ntemplate:\nspec:\n# Use virtual kubelet for serverless execution\nnodeSelector:\ntype: virtual-kubelet\nkubernetes.io/hostname: virtual-kubelet-azure-aci\n# Serverless-optimized tolerations\ntolerations:\n- key: virtual-kubelet.io/provider\noperator: Exists\n- key: azure.com/aci\neffect: NoSchedule\ncontainers:\n- name: serverless-worker\nimage: my-app:serverless-optimized\nresources:\nrequests:\ncpu: 1000m\nmemory: 2Gi\nlimits:\ncpu: 4000m\nmemory: 8Gi\n# Fast startup configuration\nimagePullPolicy: Always\n# Optimized for serverless billing\nenv:\n- name: EXECUTION_MODE\nvalue: \"serverless\"\n- name: OPTIMIZE_FOR_COST\nvalue: \"true\"\nrestartPolicy: Never\n# Serverless-friendly timeouts\nactiveDeadlineSeconds: 1800  # 30 minutes\nttlSecondsAfterFinished: 600  # Clean up quickly\nConclusion\nThe future of Kubernetes job management is exciting, with developments in serverless execution, event-driven architectures, and AI/ML workflows. By building a solid foundation with the patterns and practices outlined in this guide, you’ll be well-prepared to evolve your job management strategies as the ecosystem continues to mature.\nFuture Roadmap",
+        "This is particularly useful for longer-running jobs where you want to see the output as it happens.\nLet's create another long-running job to demonstrate:\ncd ~/project\nnano counter-job.yaml\nCopy and paste the following YAML content:\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: counter-job\nspec:\ntemplate:\nspec:\ncontainers:\n- name: counter\nimage: busybox:1.28\ncommand:\n[\n\"sh\",\n\"-c\",\n'for i in $(seq 1 5); do echo \"Count: $i\"; sleep 5; done'\n]\nrestartPolicy: Never\nSave the file and exit nano, then create the job:\nkubectl apply -f counter-job.yaml\nNow let's follow its logs. First, find the pod name:\nkubectl get pods -l job-name=counter-job\nThen follow its logs:\nkubectl logs -f <counter-job-pod-name>\nYou'll see the count incrementing every 5 seconds:\nCount: 1\nCount: 2\nCount: 3\nCount: 4\nCount: 5\nPress Ctrl+C to stop following the logs.\nBy understanding how to access and analyze logs, you can effectively troubleshoot and debug your Kubernetes jobs.\nAdvanced Job Monitoring Techniques\nNow that you know the basics of monitoring Kubernetes jobs, let's explore some more advanced techniques that can help you monitor jobs more effectively, especially in production environments.\nUsing Labels for Job Organization\nLabels are key-value pairs that can be attached to Kubernetes resources. They are useful for organizing and selecting subsets of resources. Let's create a job with custom labels:\ncd ~/project\nnano labeled-job.yaml\nCopy and paste the following YAML content:\napiVersion: batch/v1",
+        "Creating a Job Configuration File\nLet's create a simple job configuration file. Open a terminal and create a new file called hello-job.yaml in your project directory:\ncd ~/project\nnano hello-job.yaml\nCopy and paste the following YAML content into the file:\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: hello-job\nspec:\ntemplate:\nspec:\ncontainers:\n- name: hello\nimage: busybox:1.28\ncommand: [\"sh\", \"-c\", 'echo \"Hello, Kubernetes!\" && sleep 5']\nrestartPolicy: Never\nbackoffLimit: 4\nThis configuration defines a job named hello-job that:\nUses the busybox:1.28 container image\nRuns a command that prints \"Hello, Kubernetes!\" and then sleeps for 5 seconds\nHas a restart policy of Never, meaning it won't restart after completion\nHas a backoffLimit of 4, meaning it will retry up to 4 times if it fails\nSave the file by pressing Ctrl+O, then Enter, and exit nano with Ctrl+X.\nCreating the Job\nNow let's create the job in our Kubernetes cluster:\nkubectl apply -f hello-job.yaml\nYou should see the output:\njob.batch/hello-job created\nCongratulations! You've just created your first Kubernetes job. In the next step, we'll learn how to monitor its status.\nMonitoring Kubernetes Job Status\nNow that we have a job running in our Kubernetes cluster, let's learn how to monitor its status. Monitoring job status is crucial for understanding whether your jobs are completing successfully or encountering errors.\nChecking Job Status with kubectl"
+      ],
+      "context_sources": [
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Kubernetes Job resource API group",
+        "Planner model: openai/gpt-oss-120b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-120b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 24.92,
+      "error": null
+    },
+    {
+      "id": "R13",
+      "domain": "monitor_job",
+      "question": "How do you start a local Kubernetes cluster using Minikube?",
+      "reference": "Run minikube start --driver=docker. This creates a single-node Kubernetes cluster on your local machine using Docker. After it completes, kubectl is automatically configured to use the minikube cluster and default namespace.",
+      "relevant_contexts": [
+        "Start Minikube to create a local Kubernetes cluster:\nminikube start --driver=docker\n\nThis command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\n\nOnce complete, you should see a message like:\n🏄  Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default"
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "To start a local Kubernetes cluster using Minikube, run the command: `minikube start --driver=docker`\n\nDetails:\n- The command `minikube start --driver=docker` creates a local Kubernetes cluster.\n- The process takes a few minutes to complete while Minikube downloads necessary components and starts the cluster.\n- Upon completion, the output displays the message: `🏄  Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default`\n- You can verify the installation by checking the version with `minikube version`, which should show output similar to `minikube version: v1.29.0` and `commit: ddac20b4b34a9c8c857fc602203b6ba2679794d3`.\n- You can verify the cluster is running by checking node status with `kubectl get nodes`, which should show a node named `minikube` with status `Ready`, role `control-plane`, and version `v1.26.3`.",
+      "contexts": [
+        "How to monitor Kubernetes job status and logs\nIntroduction\nKubernetes is a powerful container orchestration platform that helps manage containerized applications across multiple hosts. One important feature of Kubernetes is its job management system, which allows you to run batch-oriented workloads to completion. In this tutorial, you will learn how to monitor the status of Kubernetes jobs and analyze their logs, essential skills for ensuring your containerized applications run smoothly.\nBy the end of this tutorial, you will be able to create Kubernetes jobs, check their status, and examine their logs to troubleshoot issues effectively.\nSetting Up Your Kubernetes Environment\nBefore we can monitor Kubernetes jobs, we need to set up a working Kubernetes environment. We'll use Minikube, a tool that creates a single-node Kubernetes cluster on your local machine.\nInstalling Minikube\nMinikube is typically pre-installed on many lab environments. Let's verify the installation by checking the version:\nminikube version\nYou should see output similar to this:\nminikube version: v1.29.0\ncommit: ddac20b4b34a9c8c857fc602203b6ba2679794d3\nStarting Minikube\nNow let's start Minikube to create a local Kubernetes cluster:\nminikube start --driver=docker\nThis command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\nOnce complete, you should see a message like:",
+        "This command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\nOnce complete, you should see a message like:\n🏄  Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default\nVerifying Kubernetes Installation\nLet's verify that our Kubernetes cluster is running correctly by checking the node status:\nkubectl get nodes\nYou should see output similar to this:\nNAME       STATUS   ROLES           AGE     VERSION\nminikube   Ready    control-plane   1m      v1.26.3\nAlso, check that the core Kubernetes components are running:\nkubectl get pods -n kube-system\nYou should see several pods running, including components like kube-apiserver, kube-controller-manager, and others.\nNow that we have a running Kubernetes cluster, we're ready to create and monitor jobs.\nCreating Your First Kubernetes Job\nIn this step, we'll create a simple Kubernetes job that will run a container, perform a task, and then complete. This will give us something to monitor in the following steps.\nUnderstanding Kubernetes Jobs\nA Kubernetes Job is a controller that creates one or more pods and ensures they successfully terminate. Jobs are useful for batch processes, one-time tasks, or any task that should run to completion rather than indefinitely.\nCreating a Job Configuration File",
+        "Kube-dashboard - A general purpose web based UI for kubernetes.\nNetworking\nNetworking - Fundamental Rules\nAll Pods can communicate with all other Pods without NAT\nAll nodes can communicate with all Pods (and vice-versa) without NAT.\nThe IP that a Pod sees itself as is the same IP that others see it as.\nNetworking - Fundamentals Applied\nContainers in a pod exist within the same network namespace and share an  IP; allowing for intrapod communication over localhost.\nPods are given a cluster unique IP for the duration of its lifecycle, but the pods  themselves are fundamentally ephemeral.\nServices are given a persistent cluster unique IP that spans the Pods lifecycle.\nExternal Connectivity is generally handed by an integrated cloud provider or  other external entity (load balancer)\nNetworking - CNI\nNetworking within Kubernetes is plumbed via the Container Network  Interface (CNI), an interface between a container runtime and a network  implementation plugin.\nCompatible CNI Network Plugins:\nCalico\nCillium\nContiv\nContrail\nFlannel\nGCE\nkube-router\nMultus\nOpenVSwitch\nOVN\nRomana\nWeave\nKubernetes\nConcepts\nKubernetes Concepts - Core\nCluster - A collection of hosts that aggregate their available resources including cpu, ram, disk,  and their devices into a usable pool.",
+        "kubectl get jobs\nYou should see jobs with names like simple-cronjob-<timestamp>.\nTo view the logs of the most recent CronJob execution, first find the pod:\nkubectl get pods --sort-by=.metadata.creationTimestamp\nThen view its logs:\nkubectl logs <latest-cronjob-pod>\nCronJobs are powerful for scheduling recurring tasks in your Kubernetes cluster, and the same monitoring techniques we've learned can be applied to them as well.\nCleaning Up\nBefore we finish, let's clean up the resources we created:\nkubectl delete job hello-job long-job failed-job counter-job labeled-job\nkubectl delete cronjob simple-cronjob\nThis will remove all the jobs and the CronJob from your cluster.\nSummary\nIn this tutorial, you have learned how to effectively monitor Kubernetes jobs and analyze their logs. You now know how to:\nSet up a Kubernetes environment using Minikube\nCreate Kubernetes jobs with various configurations\nMonitor job status using kubectl get and kubectl describe\nAccess and analyze job logs using kubectl logs\nUse advanced techniques like labels, events, and JSONPath for more effective monitoring\nCreate scheduled jobs using CronJobs\nThese skills are essential for managing containerized applications in a Kubernetes environment, allowing you to ensure the reliability and performance of your batch processes. By understanding how to track job progress and troubleshoot issues through logs, you can maintain efficient and error-free Kubernetes workloads.",
+        "A Hands-On Guide to Kubernetes Horizontal & Vertical Pod Autoscalers\n⎈ A Hands-On Guide to Kubernetes Horizontal & Vertical Pod Autoscalers 🛠️\n⇢ HPA & VPA in Kubernetes with a Practical Example\nAnvesh Muppeda\nJun 3, 2024 · 11 min read\nHPA & VPA in Kubernetes by Anvesh Muppeda\nIn the world of container orchestration, Kubernetes has emerged as the de facto standard. One of its powerful features is autoscaling, which helps maintain application performance and optimize resource usage. In this post, we’ll dive into two main types of autoscaling in Kubernetes:\nHorizontal Pod Autoscaling (HPA)\nand\nVertical Pod Autoscaling (VPA)\n.\nIntroduction to Kubernetes Autoscaling\nAutoscaling in Kubernetes ensures that your application can handle varying loads by automatically adjusting the number of running pods or the resources allocated to them. This dynamic adjustment is crucial for maintaining application performance, optimizing resource usage, and reducing operational costs.\nHPA & VPA Animation\n...\nMetric Server Setup\nBefore testing\nHorizontal Pod Autoscaler (HPA)\nand\nVertical Pod Autoscaler (VPA)\n, it’s essential to have the Metrics Server installed in your Kubernetes cluster. The Metrics Server collects resource usage metrics from the cluster’s nodes and pods, which are necessary for autoscaling decisions."
+      ],
+      "context_sources": [
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "pods_autoscale.html",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: minikube start local kubernetes cluster",
+        "Planner model: qwen/qwen3.8-27b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 6.61,
+      "error": null
+    },
+    {
+      "id": "R14",
+      "domain": "monitor_job",
+      "question": "What kubectl command checks the status of a running Kubernetes Job?",
+      "reference": "Use kubectl get jobs to see the COMPLETIONS, DURATION, and AGE of all jobs. For more details on a specific job, use kubectl describe jobs/<job-name>. To view logs from a completed pod, use kubectl logs pods/<pod-name>.",
+      "relevant_contexts": [
+        "The primary tool for monitoring Kubernetes resources is kubectl. Let's use it to check the status of our job:\nkubectl get jobs\n\nYou should see output similar to this:\nNAME        COMPLETIONS   DURATION   AGE\nhello-job   1/1           10s        30s\n\nFor more detailed information:\nkubectl describe jobs/hello-job"
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "kubectl get jobs\nDetails:\n- The primary tool for monitoring Kubernetes resources is kubectl.\n- The command `kubectl get jobs` checks the status of jobs.\n- The output includes columns for NAME, COMPLETIONS, DURATION, and AGE.\n- NAME is the name of the job.\n- COMPLETIONS is the number of completed pods / desired completions.\n- DURATION is how long the job took to run.\n- AGE is how long since the job was created.\n- If a job shows 0/1 under COMPLETIONS, it might still be running or has failed.\n- You can wait a few seconds and run the command again if the status is not final.",
+      "contexts": [
+        "kubectl get jobs\nYou should see jobs with names like simple-cronjob-<timestamp>.\nTo view the logs of the most recent CronJob execution, first find the pod:\nkubectl get pods --sort-by=.metadata.creationTimestamp\nThen view its logs:\nkubectl logs <latest-cronjob-pod>\nCronJobs are powerful for scheduling recurring tasks in your Kubernetes cluster, and the same monitoring techniques we've learned can be applied to them as well.\nCleaning Up\nBefore we finish, let's clean up the resources we created:\nkubectl delete job hello-job long-job failed-job counter-job labeled-job\nkubectl delete cronjob simple-cronjob\nThis will remove all the jobs and the CronJob from your cluster.\nSummary\nIn this tutorial, you have learned how to effectively monitor Kubernetes jobs and analyze their logs. You now know how to:\nSet up a Kubernetes environment using Minikube\nCreate Kubernetes jobs with various configurations\nMonitor job status using kubectl get and kubectl describe\nAccess and analyze job logs using kubectl logs\nUse advanced techniques like labels, events, and JSONPath for more effective monitoring\nCreate scheduled jobs using CronJobs\nThese skills are essential for managing containerized applications in a Kubernetes environment, allowing you to ensure the reliability and performance of your batch processes. By understanding how to track job progress and troubleshoot issues through logs, you can maintain efficient and error-free Kubernetes workloads.",
+        "Checking Job Status with kubectl\nThe primary tool for monitoring Kubernetes resources is kubectl. Let's use it to check the status of our job:\nkubectl get jobs\nYou should see output similar to this:\nNAME        COMPLETIONS   DURATION   AGE\nhello-job   1/1           10s        30s\nThis output shows:\nNAME: The name of the job\nCOMPLETIONS: The number of completed pods / desired completions\nDURATION: How long the job took to run\nAGE: How long since the job was created\nIf your job shows 0/1 under COMPLETIONS, it might still be running or has failed. Wait a few seconds and run the command again.\nGetting Detailed Job Information\nTo get more detailed information about a job, use the describe command:\nkubectl describe job hello-job\nThis command provides extensive information about the job, including:\nLabels and annotations\nSelector details\nParallelism and completion requirements\nPod statuses\nEvents related to the job\nLook for the Events section at the bottom, which shows important events like pod creation and completion.\nUnderstanding Job Status\nA job can have several statuses:\nActive: The job is still running\nCompleted: The job has completed successfully\nFailed: The job has failed after reaching its backoff limit\nLet's check if our job's pod has completed:\nkubectl get pods\nYou should see something like:\nNAME              READY   STATUS      RESTARTS   AGE\nhello-job-abcd1   0/1     Completed   0          1m\nThe STATUS column shows Completed, indicating that our job ran successfully.",
+        "Using JSONPath for Custom Output\nKubernetes allows you to use JSONPath to extract specific fields from the output of kubectl commands. This is useful for focusing on particular aspects of your jobs:\nkubectl get job labeled-job -o jsonpath='{.status.succeeded}'\nThis command will output the number of succeeded pods for the labeled-job.\nTo get the creation time of a job:\nkubectl get job labeled-job -o jsonpath='{.metadata.creationTimestamp}'\nCreating a CronJob for Scheduled Execution\nFor tasks that need to run on a schedule, Kubernetes provides CronJobs. Let's create a simple CronJob:\ncd ~/project\nnano simple-cronjob.yaml\nCopy and paste the following YAML content:\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: simple-cronjob\nspec:\nschedule: \"*/1 * * * *\" ## Run every minute\njobTemplate:\nspec:\ntemplate:\nspec:\ncontainers:\n- name: hello\nimage: busybox:1.28\ncommand: [\"sh\", \"-c\", 'date; echo \"Hello from CronJob\"']\nrestartPolicy: Never\nSave the file and exit nano, then create the CronJob:\nkubectl apply -f simple-cronjob.yaml\nCheck that the CronJob was created:\nkubectl get cronjobs\nYou should see output similar to:\nNAME             SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE\nsimple-cronjob   */1 * * * *   False     0        <none>          10s\nWait a minute or two, then check for jobs created by the CronJob:\nkubectl get jobs\nYou should see jobs with names like simple-cronjob-<timestamp>.\nTo view the logs of the most recent CronJob execution, first find the pod:",
+        "cd ~/project\nnano labeled-job.yaml\nCopy and paste the following YAML content:\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: labeled-job\nlabels:\ndepartment: engineering\napp: demo\nenvironment: training\nspec:\ntemplate:\nspec:\ncontainers:\n- name: labeled\nimage: busybox:1.28\ncommand: [\"sh\", \"-c\", 'echo \"This is a labeled job\" && sleep 10']\nrestartPolicy: Never\nSave the file and exit nano, then create the job:\nkubectl apply -f labeled-job.yaml\nNow you can filter jobs by their labels:\nkubectl get jobs -l department=engineering\nThis will show only jobs with the label department=engineering.\nYou can use multiple labels for more specific filtering:\nkubectl get jobs -l department=engineering,environment=training\nMonitoring Job Events\nKubernetes generates events for various state changes in your jobs. These events can provide valuable information about the lifecycle of your jobs.\nLet's view the events related to our jobs:\nkubectl get events --sort-by=.metadata.creationTimestamp\nThis command shows all events in your namespace, sorted by time. You can filter for events related to a specific job:\nkubectl get events --field-selector involvedObject.name=labeled-job\nThese events can help you understand when and why jobs were created, started, or encountered issues.\nUsing JSONPath for Custom Output\nKubernetes allows you to use JSONPath to extract specific fields from the output of kubectl commands. This is useful for focusing on particular aspects of your jobs:",
+        "This command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\nOnce complete, you should see a message like:\n🏄  Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default\nVerifying Kubernetes Installation\nLet's verify that our Kubernetes cluster is running correctly by checking the node status:\nkubectl get nodes\nYou should see output similar to this:\nNAME       STATUS   ROLES           AGE     VERSION\nminikube   Ready    control-plane   1m      v1.26.3\nAlso, check that the core Kubernetes components are running:\nkubectl get pods -n kube-system\nYou should see several pods running, including components like kube-apiserver, kube-controller-manager, and others.\nNow that we have a running Kubernetes cluster, we're ready to create and monitor jobs.\nCreating Your First Kubernetes Job\nIn this step, we'll create a simple Kubernetes job that will run a container, perform a task, and then complete. This will give us something to monitor in the following steps.\nUnderstanding Kubernetes Jobs\nA Kubernetes Job is a controller that creates one or more pods and ensures they successfully terminate. Jobs are useful for batch processes, one-time tasks, or any task that should run to completion rather than indefinitely.\nCreating a Job Configuration File"
+      ],
+      "context_sources": [
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: kubectl get jobs",
+        "Planner model: qwen/qwen3.8-27b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 5.89,
+      "error": null
+    },
+    {
+      "id": "R15",
+      "domain": "monitor_job",
+      "question": "How do you verify that the core Kubernetes components are running after starting Minikube?",
+      "reference": "Run kubectl get pods -n kube-system. This lists all pods in the kube-system namespace, which includes critical components like kube-apiserver, kube-controller-manager, and others. All listed pods should show a Running status.",
+      "relevant_contexts": [
+        "Check that the core Kubernetes components are running:\nkubectl get pods -n kube-system\n\nYou should see several pods running, including components like kube-apiserver, kube-controller-manager, and others."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Great question! Once Minikube has started, it’s a good habit to verify that the core Kubernetes components are healthy and running. Here are the most common and reliable ways to do that:\n\n### 1. Check Node Status\nThe most fundamental check is to ensure your Minikube node is `Ready`.\n\n```bash\nkubectl get nodes\n```\n\n**Expected Output:**\n```\nNAME       STATUS   ROLES           AGE   VERSION\nminikube   Ready    control-plane   1m    v1.29.0\n```\n- **STATUS** should be `Ready`.\n- **ROLES** typically includes `control-plane` (and sometimes `worker` in newer versions).\n\n### 2. Check Core System Pods\nKubernetes runs several critical system pods in the `kube-system` namespace. You can list them and verify they are `Running` or `Completed` (for init containers).\n\n```bash\nkubectl get pods -n kube-system\n```\n\n**Key pods to look for:**\n- `coredns-*` (DNS resolution)\n- `etcd-*` (Cluster state storage)\n- `kube-apiserver-*` (API server)\n- `kube-controller-manager-*` (Controller manager)\n- `kube-scheduler-*` (Scheduler)\n- `kube-proxy-*` (Network proxy)\n\nAll of these should have a **STATUS** of `Running`. If any are `CrashLoopBackOff` or `Pending`, there may be an issue.\n\n### 3. Use `minikube status`\nMinikube provides its own status command that gives a quick overview of the cluster health.\n\n```bash\nminikube status\n```\n\n**Expected Output:**\n```\nminikube\ntype: Control Plane\nhost: Running\nkubelet: Running\napiserver: Running\nkubeconfig: Configured\n```\n\n### 4. Check Component Health (Optional but Thorough)\nYou can also check the health of specific components using the Kubernetes API:\n\n```bash\nkubectl get componentstatuses\n```\n\n> **Note:** In newer versions of Kubernetes (v1.19+), `componentstatuses` is deprecated and may not return data. If this command doesn’t work, rely on `kubectl get pods -n kube-system` instead.\n\n### 5. Test with a Simple Deployment (Optional)\nFor a functional test, you can deploy a simple app and verify it’s accessible:\n\n```bash\nkubectl run nginx --image=nginx\nkubectl get pods\nkubectl port-forward svc/nginx 8080:80\n```\n\nThen visit `http://localhost:8080` in your browser. If you see the default Nginx welcome page, your cluster is fully functional.\n\n---\n\n### Summary Checklist\n✅ `kubectl get nodes` shows `Ready`  \n✅ `kubectl get pods -n kube-system` shows all core pods `Running`  \n✅ `minikube status` shows all components `Running`  \n\nIf all these checks pass, your Minikube cluster is up and running correctly! Let me know if you’d like help troubleshooting any specific component. 😊",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 3.93,
+      "error": null
+    },
+    {
+      "id": "R16",
+      "domain": "architecture",
+      "question": "What role does etcd play in a Kubernetes cluster?",
+      "reference": "etcd is the cluster datastore: a strong, consistent and highly available key-value store used for persisting cluster state.",
+      "relevant_contexts": [
+        "Etcd acts as the cluster datastore; providing a strong, consistent and highly available key-value store used for persisting cluster state."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Etcd acts as the cluster datastore; providing a strong, consistent and highly available key-value store used for persisting cluster state.\nDetails:\n- It provides a strong, consistent and highly available key-value store.\n- It is used for persisting cluster state.\n- The request is stored in etcd during the APIserver Request Loop.\n- Kubelet can read YAML container manifests from an Etcd watch acting on any changes.",
+      "contexts": [
+        "Architecture  Overview\nMaster\nComponents\nMaster Components\nKube-apiserver\nEtcd\nKube-controller-manager\nCloud-controller-manager\nKube-scheduler\nkube-apiserver\nThe apiserver provides a forward facing REST interface into the kubernetes  control plane and datastore. All clients, including nodes, users and other  applications interact with kubernetes strictly through the API Server.\nIt is the true core of Kubernetes acting as the gatekeeper to the cluster by  handling authentication and authorization, request validation, mutation, and  admission control in addition to being the front-end to the backing datastore.\netcd\nEtcd acts as the cluster datastore; providing a strong, consistent and highly  available key-value store used for persisting cluster state.\nkube-controller-manager\nThe controller-manager is the primary daemon that manages all core  component control loops. It monitors the cluster state via the apiserver and  steers the cluster towards the desired state.\nList of core controllers:\nhttps://github.com/kubernetes/kubernetes/blob/master/cmd/kube-controller-manager/app/controllermanager.go#L332\ncloud-controller-manager\nThe cloud-controller-manager is a daemon that provides cloud-provider  specific knowledge and integration capability into the core control loop of  Kubernetes. The controllers include Node, Route, Service, and add an  additional controller to handle PersistentVolumeLabels .\nkube-scheduler",
+        "kube-scheduler\nKube-scheduler is a verbose policy-rich engine that evaluates workload  requirements and attempts to place it on a matching resource. These  requirements can include such things as general hardware reqs, affinity,  anti-affinity, and other custom resource requirements.\nNode\nComponents\nNode Components\nKubelet\nKube-proxy\nContainer runtime engine\nkubelet\nActs as the node agent responsible for managing pod lifecycle on its host.  Kubelet understands YAML container manifests that it can read from several  sources:\nFile path\nHTTP Endpoint\nEtcd watch acting on any changes\nHTTP Server mode accepting container manifests over a simple API.\nkube-proxy\nManages the network rules on each node and performs connection  forwarding or load balancing for Kubernetes cluster services.\nAvailable Proxy Modes:\nUserspace\niptables\nipvs (alpha in 1.8)\nContainer Runtime\nWith respect to Kubernetes, A container runtime is a CRI (Container Runtime Interface)  compatible application that executes and manages containers.\nContainerd (docker)\nCri-o\nRkt\nKata (formerly clear and hyper)\nVirtlet (VM CRI compatible runtime)\nAdditional Services\nKube-dns - Provides cluster wide DNS Services. Services are resolvable to\n<service>.<namespace>.svc.cluster.local.\nHeapster - Metrics Collector for kubernetes cluster, used by some resources  such as the Horizontal Pod Autoscaler. (required for kubedashboard metrics)\nKube-dashboard - A general purpose web based UI for kubernetes.\nNetworking",
+        "Romana\nWeave\nKubernetes\nConcepts\nKubernetes Concepts - Core\nCluster - A collection of hosts that aggregate their available resources including cpu, ram, disk,  and their devices into a usable pool.\nMaster - The master(s) represent a collection of components that make up the control plane of  Kubernetes. These components are responsible for all cluster decisions including both  scheduling and responding to cluster events.\nNode - A single host, physical or virtual capable of running pods. A node is managed by the  master(s), and at a minimum runs both kubelet and kube-proxy to be considered part of the  cluster.\nNamespace - A logical cluster or environment. Primary method of dividing a cluster or  scoping access.\nConcepts - Core (cont.)\nLabel - Key-value pairs that are used to identify, describe and group together related sets of  objects. Labels have a strict syntax and available character set. *\nAnnotation - Key-value pairs that contain non-identifying information or metadata.  Annotations do not have the the syntax limitations as labels and can contain structured or  unstructured data.\nSelector - Selectors use labels to filter or select objects. Both equality-based (=, ==, !=) or  simple key-value matching selectors are supported.\n* https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set\nLabels:\napp: nginx  tier: frontned\nAnnotations\ndescription: “nginx frontend”\nSelector:  app: nginx\ntier: frontend",
+        "Kubernetes\nA Comprehensive Overview\nKubernetes v1.8\nAgenda\nIntroduction\nWho am I?\nWhat is Kubernetes?\nWhat does Kubernetes do?\nArchitecture\nMaster Components\nNode Components\nAdditional Services\nNetworking\nConcepts\nCore\nWorkloads\nNetwork\nStorage\nConfiguration\nAuth and Identity\nBehind the Scenes\nDeployment from Beginning to End\nIntroduction\nIntro - What is Kubernetes?\nKubernetes or K8s was a project spun out of Google as a open source  next-gen container scheduler designed with the lessons learned from  developing and managing Borg and Omega.\nKubernetes was designed from the ground-up as a loosely coupled collection  of components centered around deploying, maintaining, and scaling  applications.\nIntro - What Does Kubernetes do?\nKubernetes is the linux kernel of distributed systems.\nIt abstracts away the underlying hardware of the nodes and provides a  uniform interface for applications to be both deployed and consume the  shared pool of resources.\nKubernetes\nArchitecture\nArchitecture Overview\nMasters - Acts as the primary control plane for Kubernetes. Masters are  responsible at a minimum for running the API Server, scheduler, and cluster  controller. They commonly also manage storing cluster state, cloud-provider  specific components and other cluster essential services.\nNodes - Are the ‘workers’ of a Kubernetes cluster. They run a minimal agent  that manages the node itself, and are tasked with executing workloads as  designated by the master.\nArchitecture  Overview\nMaster",
+        "[Cluster]Role\nPermissions translate to url  path. With “” defaulting to core  group.\nResources act as items the role  should be granted access to.\nVerbs are the actions the role  can perform on the referenced  resources.\n[Cluster]RoleBinding\nCan reference multiple subjects\nSubjects can be of kind:\nUser\nGroup\nServiceAccount\nroleRef targets a single role only.\nBehind\nThe Scenes\nBehind\nThe Scenes\nDeployment From\nBeginning to End\nKubectl\nKubectl performs client side  validation on manifest (linting).\nManifest is prepared and serialized  creating a JSON payload.\nAPIserver Request Loop\nKubectl authenticates to apiserver via x509, jwt,  http auth proxy, other plugins, or http-basic auth.\nAuthorization iterates over available AuthZ  sources: Node, ABAC, RBAC, or webhook.\nAdmissionControl checks resource quotas,  other security related checks etc.\nRequest is stored in etcd.\nInitializers are given opportunity to mutate request before the object is published.\nRequest is published on apiserver.\nDeployment Controller\nDeployment Controller is notified of the new  Deployment via callback.\nDeployment Controller evaluates cluster state and  reconciles the desired vs current state and forms a  request for the new ReplicaSet.\napiserver request loop evaluates Deployment  Controller request.\nReplicaSet is published.\nReplicaSet Controller\nReplicaSet Controller is notified of the new ReplicaSet  via callback."
+      ],
+      "context_sources": [
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: etcd role in Kubernetes cluster",
+        "Planner model: qwen/qwen3.8-27b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 43.13,
+      "error": null
+    },
+    {
+      "id": "R17",
+      "domain": "architecture",
+      "question": "What does the kube-scheduler do?",
+      "reference": "The kube-scheduler is a policy-rich engine that evaluates workload requirements and places the workload on a matching resource. Requirements include hardware requirements, affinity, anti-affinity and other custom resource requirements.",
+      "relevant_contexts": [
+        "Kube-scheduler is a verbose policy-rich engine that evaluates workload requirements and attempts to place it on a matching resource. These requirements can include such things as general hardware reqs, affinity, anti-affinity, and other custom resource requirements."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "The kube-scheduler is a verbose policy-rich engine that evaluates workload requirements and attempts to place it on a matching resource.\n\nDetails:\n- It evaluates requirements that can include general hardware reqs, affinity, anti-affinity, and other custom resource requirements.\n- It is listed as a Master Component in the Architecture Overview.\n- Masters are responsible at a minimum for running the API Server, scheduler, and cluster controller.",
+      "contexts": [
+        "kube-scheduler\nKube-scheduler is a verbose policy-rich engine that evaluates workload  requirements and attempts to place it on a matching resource. These  requirements can include such things as general hardware reqs, affinity,  anti-affinity, and other custom resource requirements.\nNode\nComponents\nNode Components\nKubelet\nKube-proxy\nContainer runtime engine\nkubelet\nActs as the node agent responsible for managing pod lifecycle on its host.  Kubelet understands YAML container manifests that it can read from several  sources:\nFile path\nHTTP Endpoint\nEtcd watch acting on any changes\nHTTP Server mode accepting container manifests over a simple API.\nkube-proxy\nManages the network rules on each node and performs connection  forwarding or load balancing for Kubernetes cluster services.\nAvailable Proxy Modes:\nUserspace\niptables\nipvs (alpha in 1.8)\nContainer Runtime\nWith respect to Kubernetes, A container runtime is a CRI (Container Runtime Interface)  compatible application that executes and manages containers.\nContainerd (docker)\nCri-o\nRkt\nKata (formerly clear and hyper)\nVirtlet (VM CRI compatible runtime)\nAdditional Services\nKube-dns - Provides cluster wide DNS Services. Services are resolvable to\n<service>.<namespace>.svc.cluster.local.\nHeapster - Metrics Collector for kubernetes cluster, used by some resources  such as the Horizontal Pod Autoscaler. (required for kubedashboard metrics)\nKube-dashboard - A general purpose web based UI for kubernetes.\nNetworking",
+        "Architecture  Overview\nMaster\nComponents\nMaster Components\nKube-apiserver\nEtcd\nKube-controller-manager\nCloud-controller-manager\nKube-scheduler\nkube-apiserver\nThe apiserver provides a forward facing REST interface into the kubernetes  control plane and datastore. All clients, including nodes, users and other  applications interact with kubernetes strictly through the API Server.\nIt is the true core of Kubernetes acting as the gatekeeper to the cluster by  handling authentication and authorization, request validation, mutation, and  admission control in addition to being the front-end to the backing datastore.\netcd\nEtcd acts as the cluster datastore; providing a strong, consistent and highly  available key-value store used for persisting cluster state.\nkube-controller-manager\nThe controller-manager is the primary daemon that manages all core  component control loops. It monitors the cluster state via the apiserver and  steers the cluster towards the desired state.\nList of core controllers:\nhttps://github.com/kubernetes/kubernetes/blob/master/cmd/kube-controller-manager/app/controllermanager.go#L332\ncloud-controller-manager\nThe cloud-controller-manager is a daemon that provides cloud-provider  specific knowledge and integration capability into the core control loop of  Kubernetes. The controllers include Node, Route, Service, and add an  additional controller to handle PersistentVolumeLabels .\nkube-scheduler",
+        "Kubernetes\nA Comprehensive Overview\nKubernetes v1.8\nAgenda\nIntroduction\nWho am I?\nWhat is Kubernetes?\nWhat does Kubernetes do?\nArchitecture\nMaster Components\nNode Components\nAdditional Services\nNetworking\nConcepts\nCore\nWorkloads\nNetwork\nStorage\nConfiguration\nAuth and Identity\nBehind the Scenes\nDeployment from Beginning to End\nIntroduction\nIntro - What is Kubernetes?\nKubernetes or K8s was a project spun out of Google as a open source  next-gen container scheduler designed with the lessons learned from  developing and managing Borg and Omega.\nKubernetes was designed from the ground-up as a loosely coupled collection  of components centered around deploying, maintaining, and scaling  applications.\nIntro - What Does Kubernetes do?\nKubernetes is the linux kernel of distributed systems.\nIt abstracts away the underlying hardware of the nodes and provides a  uniform interface for applications to be both deployed and consume the  shared pool of resources.\nKubernetes\nArchitecture\nArchitecture Overview\nMasters - Acts as the primary control plane for Kubernetes. Masters are  responsible at a minimum for running the API Server, scheduler, and cluster  controller. They commonly also manage storing cluster state, cloud-provider  specific components and other cluster essential services.\nNodes - Are the ‘workers’ of a Kubernetes cluster. They run a minimal agent  that manages the node itself, and are tasked with executing workloads as  designated by the master.\nArchitecture  Overview\nMaster",
+        "This command will take a few minutes to complete. You'll see a series of messages as Minikube downloads necessary components and starts the cluster.\nOnce complete, you should see a message like:\n🏄  Done! kubectl is now configured to use \"minikube\" cluster and \"default\" namespace by default\nVerifying Kubernetes Installation\nLet's verify that our Kubernetes cluster is running correctly by checking the node status:\nkubectl get nodes\nYou should see output similar to this:\nNAME       STATUS   ROLES           AGE     VERSION\nminikube   Ready    control-plane   1m      v1.26.3\nAlso, check that the core Kubernetes components are running:\nkubectl get pods -n kube-system\nYou should see several pods running, including components like kube-apiserver, kube-controller-manager, and others.\nNow that we have a running Kubernetes cluster, we're ready to create and monitor jobs.\nCreating Your First Kubernetes Job\nIn this step, we'll create a simple Kubernetes job that will run a container, perform a task, and then complete. This will give us something to monitor in the following steps.\nUnderstanding Kubernetes Jobs\nA Kubernetes Job is a controller that creates one or more pods and ensures they successfully terminate. Jobs are useful for batch processes, one-time tasks, or any task that should run to completion rather than indefinitely.\nCreating a Job Configuration File",
+        "Using JSONPath for Custom Output\nKubernetes allows you to use JSONPath to extract specific fields from the output of kubectl commands. This is useful for focusing on particular aspects of your jobs:\nkubectl get job labeled-job -o jsonpath='{.status.succeeded}'\nThis command will output the number of succeeded pods for the labeled-job.\nTo get the creation time of a job:\nkubectl get job labeled-job -o jsonpath='{.metadata.creationTimestamp}'\nCreating a CronJob for Scheduled Execution\nFor tasks that need to run on a schedule, Kubernetes provides CronJobs. Let's create a simple CronJob:\ncd ~/project\nnano simple-cronjob.yaml\nCopy and paste the following YAML content:\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: simple-cronjob\nspec:\nschedule: \"*/1 * * * *\" ## Run every minute\njobTemplate:\nspec:\ntemplate:\nspec:\ncontainers:\n- name: hello\nimage: busybox:1.28\ncommand: [\"sh\", \"-c\", 'date; echo \"Hello from CronJob\"']\nrestartPolicy: Never\nSave the file and exit nano, then create the CronJob:\nkubectl apply -f simple-cronjob.yaml\nCheck that the CronJob was created:\nkubectl get cronjobs\nYou should see output similar to:\nNAME             SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE\nsimple-cronjob   */1 * * * *   False     0        <none>          10s\nWait a minute or two, then check for jobs created by the CronJob:\nkubectl get jobs\nYou should see jobs with names like simple-cronjob-<timestamp>.\nTo view the logs of the most recent CronJob execution, first find the pod:"
+      ],
+      "context_sources": [
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "monitor_job.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: kube-scheduler functionality and role in Kubernetes",
+        "Planner model: qwen/qwen3.8-27b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 24.01,
+      "error": null
+    },
+    {
+      "id": "R18",
+      "domain": "architecture",
+      "question": "Which components run on a Kubernetes worker node, and what does kube-proxy do?",
+      "reference": "Each node runs the kubelet, kube-proxy and a container runtime engine. kube-proxy manages the network rules on each node and performs connection forwarding or load balancing for Kubernetes cluster services.",
+      "relevant_contexts": [
+        "Node Components: Kubelet, Kube-proxy, Container runtime engine",
+        "kube-proxy manages the network rules on each node and performs connection forwarding or load balancing for Kubernetes cluster services."
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "The components that run on a Kubernetes worker node are Kubelet, Kube-proxy, and a Container runtime engine; kube-proxy manages the network rules on each node and performs connection forwarding or load balancing for Kubernetes cluster services.\n\nDetails:\n- Node components listed are Kubelet, Kube-proxy, and Container runtime engine.\n- Kubelet acts as the node agent responsible for managing pod lifecycle on its host.\n- Kubelet understands YAML container manifests read from File path, HTTP Endpoint, Etcd watch acting on any changes, or HTTP Server mode accepting container manifests over a simple API.\n- Kube-proxy manages the network rules on each node and performs connection forwarding or load balancing for Kubernetes cluster services.\n- Available Proxy Modes for kube-proxy are Userspace, iptables, and ipvs (alpha in 1.8).\n- A container runtime is a CRI (Container Runtime Interface) compatible application that executes and manages containers.\n- Listed container runtimes include Containerd (docker), Cri-o, Rkt, Kata (formerly clear and hyper), and Virtlet (VM CRI compatible runtime).\n- A node is a single host, physical or virtual, capable of running pods.\n- A node is managed by the master(s) and at a minimum runs both kubelet and kube-proxy to be considered part of the cluster.",
+      "contexts": [
+        "kube-scheduler\nKube-scheduler is a verbose policy-rich engine that evaluates workload  requirements and attempts to place it on a matching resource. These  requirements can include such things as general hardware reqs, affinity,  anti-affinity, and other custom resource requirements.\nNode\nComponents\nNode Components\nKubelet\nKube-proxy\nContainer runtime engine\nkubelet\nActs as the node agent responsible for managing pod lifecycle on its host.  Kubelet understands YAML container manifests that it can read from several  sources:\nFile path\nHTTP Endpoint\nEtcd watch acting on any changes\nHTTP Server mode accepting container manifests over a simple API.\nkube-proxy\nManages the network rules on each node and performs connection  forwarding or load balancing for Kubernetes cluster services.\nAvailable Proxy Modes:\nUserspace\niptables\nipvs (alpha in 1.8)\nContainer Runtime\nWith respect to Kubernetes, A container runtime is a CRI (Container Runtime Interface)  compatible application that executes and manages containers.\nContainerd (docker)\nCri-o\nRkt\nKata (formerly clear and hyper)\nVirtlet (VM CRI compatible runtime)\nAdditional Services\nKube-dns - Provides cluster wide DNS Services. Services are resolvable to\n<service>.<namespace>.svc.cluster.local.\nHeapster - Metrics Collector for kubernetes cluster, used by some resources  such as the Horizontal Pod Autoscaler. (required for kubedashboard metrics)\nKube-dashboard - A general purpose web based UI for kubernetes.\nNetworking",
+        "Architecture  Overview\nMaster\nComponents\nMaster Components\nKube-apiserver\nEtcd\nKube-controller-manager\nCloud-controller-manager\nKube-scheduler\nkube-apiserver\nThe apiserver provides a forward facing REST interface into the kubernetes  control plane and datastore. All clients, including nodes, users and other  applications interact with kubernetes strictly through the API Server.\nIt is the true core of Kubernetes acting as the gatekeeper to the cluster by  handling authentication and authorization, request validation, mutation, and  admission control in addition to being the front-end to the backing datastore.\netcd\nEtcd acts as the cluster datastore; providing a strong, consistent and highly  available key-value store used for persisting cluster state.\nkube-controller-manager\nThe controller-manager is the primary daemon that manages all core  component control loops. It monitors the cluster state via the apiserver and  steers the cluster towards the desired state.\nList of core controllers:\nhttps://github.com/kubernetes/kubernetes/blob/master/cmd/kube-controller-manager/app/controllermanager.go#L332\ncloud-controller-manager\nThe cloud-controller-manager is a daemon that provides cloud-provider  specific knowledge and integration capability into the core control loop of  Kubernetes. The controllers include Node, Route, Service, and add an  additional controller to handle PersistentVolumeLabels .\nkube-scheduler",
+        "Kubernetes\nA Comprehensive Overview\nKubernetes v1.8\nAgenda\nIntroduction\nWho am I?\nWhat is Kubernetes?\nWhat does Kubernetes do?\nArchitecture\nMaster Components\nNode Components\nAdditional Services\nNetworking\nConcepts\nCore\nWorkloads\nNetwork\nStorage\nConfiguration\nAuth and Identity\nBehind the Scenes\nDeployment from Beginning to End\nIntroduction\nIntro - What is Kubernetes?\nKubernetes or K8s was a project spun out of Google as a open source  next-gen container scheduler designed with the lessons learned from  developing and managing Borg and Omega.\nKubernetes was designed from the ground-up as a loosely coupled collection  of components centered around deploying, maintaining, and scaling  applications.\nIntro - What Does Kubernetes do?\nKubernetes is the linux kernel of distributed systems.\nIt abstracts away the underlying hardware of the nodes and provides a  uniform interface for applications to be both deployed and consume the  shared pool of resources.\nKubernetes\nArchitecture\nArchitecture Overview\nMasters - Acts as the primary control plane for Kubernetes. Masters are  responsible at a minimum for running the API Server, scheduler, and cluster  controller. They commonly also manage storing cluster state, cloud-provider  specific components and other cluster essential services.\nNodes - Are the ‘workers’ of a Kubernetes cluster. They run a minimal agent  that manages the node itself, and are tasked with executing workloads as  designated by the master.\nArchitecture  Overview\nMaster",
+        "Romana\nWeave\nKubernetes\nConcepts\nKubernetes Concepts - Core\nCluster - A collection of hosts that aggregate their available resources including cpu, ram, disk,  and their devices into a usable pool.\nMaster - The master(s) represent a collection of components that make up the control plane of  Kubernetes. These components are responsible for all cluster decisions including both  scheduling and responding to cluster events.\nNode - A single host, physical or virtual capable of running pods. A node is managed by the  master(s), and at a minimum runs both kubelet and kube-proxy to be considered part of the  cluster.\nNamespace - A logical cluster or environment. Primary method of dividing a cluster or  scoping access.\nConcepts - Core (cont.)\nLabel - Key-value pairs that are used to identify, describe and group together related sets of  objects. Labels have a strict syntax and available character set. *\nAnnotation - Key-value pairs that contain non-identifying information or metadata.  Annotations do not have the the syntax limitations as labels and can contain structured or  unstructured data.\nSelector - Selectors use labels to filter or select objects. Both equality-based (=, ==, !=) or  simple key-value matching selectors are supported.\n* https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/#syntax-and-character-set\nLabels:\napp: nginx  tier: frontned\nAnnotations\ndescription: “nginx frontend”\nSelector:  app: nginx\ntier: frontend",
+        "Kube-dashboard - A general purpose web based UI for kubernetes.\nNetworking\nNetworking - Fundamental Rules\nAll Pods can communicate with all other Pods without NAT\nAll nodes can communicate with all Pods (and vice-versa) without NAT.\nThe IP that a Pod sees itself as is the same IP that others see it as.\nNetworking - Fundamentals Applied\nContainers in a pod exist within the same network namespace and share an  IP; allowing for intrapod communication over localhost.\nPods are given a cluster unique IP for the duration of its lifecycle, but the pods  themselves are fundamentally ephemeral.\nServices are given a persistent cluster unique IP that spans the Pods lifecycle.\nExternal Connectivity is generally handed by an integrated cloud provider or  other external entity (load balancer)\nNetworking - CNI\nNetworking within Kubernetes is plumbed via the Container Network  Interface (CNI), an interface between a container runtime and a network  implementation plugin.\nCompatible CNI Network Plugins:\nCalico\nCillium\nContiv\nContrail\nFlannel\nGCE\nkube-router\nMultus\nOpenVSwitch\nOVN\nRomana\nWeave\nKubernetes\nConcepts\nKubernetes Concepts - Core\nCluster - A collection of hosts that aggregate their available resources including cpu, ram, disk,  and their devices into a usable pool."
+      ],
+      "context_sources": [
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        },
+        {
+          "source": "architecture.pptx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Kubernetes worker node components kube-proxy functionality",
+        "Planner model: qwen/qwen3.8-27b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 12.52,
+      "error": null
+    },
+    {
+      "id": "R19",
+      "domain": "cronjobs",
+      "question": "In the cost-optimized batch CronJob example, how soon are finished Jobs cleaned up and how much history is kept?",
+      "reference": "ttlSecondsAfterFinished is 3600, so finished Jobs are cleaned up after one hour. The example keeps minimal history: successfulJobsHistoryLimit 1 and failedJobsHistoryLimit 2.",
+      "relevant_contexts": [
+        "ttlSecondsAfterFinished: 3600  # Clean up after 1 hour\n  # Minimal history for cost savings\n  successfulJobsHistoryLimit: 1\n  failedJobsHistoryLimit: 2"
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "In the **cost‑optimized batch CronJob** example the cleanup is driven by two mechanisms:\n\n| Mechanism | Setting in the example | What it does |\n|-----------|------------------------|--------------|\n| **TTL controller** | `ttlSecondsAfterFinished: 86400` | As soon as a Job finishes (whether it succeeded or failed), the TTL controller will delete the Job **24 hours later** (86 400 seconds). |\n| **History limits** | `successfulJobsHistoryLimit: 3`<br>`failedJobsHistoryLimit: 1` | The CronJob keeps only a small slice of its past runs: up to **3 most‑recent successful Jobs** and **1 most‑recent failed Job**. Older Jobs are pruned regardless of the TTL, so the history never grows beyond those numbers. |\n\nSo, finished Jobs are removed **one day after they complete**, and the CronJob retains **a maximum of three successful runs and one failed run** in its history. This keeps the cluster tidy while still giving you enough recent context to troubleshoot if needed.",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: openai/gpt-oss-120b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "openai/gpt-oss-120b"
+      },
+      "latency_s": 70.1,
+      "error": null
+    },
+    {
+      "id": "R20",
+      "domain": "cronjobs",
+      "question": "In the backup CronJob example, which concurrency policy, starting deadline and timeout are configured?",
+      "reference": "concurrencyPolicy is Forbid (no overlapping runs), startingDeadlineSeconds is 300, and activeDeadlineSeconds is 3600, a one-hour timeout. backoffLimit is 3.",
+      "relevant_contexts": [
+        "backoffLimit: 3\n      activeDeadlineSeconds: 3600  # 1 hour timeout\n  successfulJobsHistoryLimit: 3\n  failedJobsHistoryLimit: 5\n  concurrencyPolicy: Forbid\n  startingDeadlineSeconds: 300"
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "Based on the conversation history provided, there is no previous context or \"backup CronJob example\" shared. The conversation history is empty.\n\nTherefore, I cannot determine which concurrency policy, starting deadline, and timeout are configured, as no specific example was provided in our chat.\n\nIf you can share the CronJob YAML snippet or describe the example you are referring to, I would be happy to help you identify those settings!",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 4.15,
+      "error": null
+    },
+    {
+      "id": "R21",
+      "domain": "cronjobs",
+      "question": "What schedule does the etl-customer-data CronJob use?",
+      "reference": "It uses the schedule \"0 1 * * *\", which runs daily at 1 AM.",
+      "relevant_contexts": [
+        "name: etl-customer-data\nspec:\n  schedule: \"0 1 * * *\"  # Daily at 1 AM"
+      ],
+      "answerable": true,
+      "expected_route": "retrieve",
+      "answer": "I don't have access to your specific cluster's Kubernetes resources or configuration files, so I cannot see the exact schedule defined for the `etl-customer-data` CronJob in your environment.\n\nTo find the schedule, you can run the following command in your terminal:\n\n```bash\nkubectl get cronjob etl-customer-data -o jsonpath='{.spec.schedule}'\n```\n\nOr, for a more detailed view including the schedule and other specs:\n\n```bash\nkubectl describe cronjob etl-customer-data\n```\n\nThe schedule is typically defined in the `spec.schedule` field of the CronJob manifest and uses a standard cron expression (e.g., `0 2 * * *` for daily at 2 AM).",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 1.41,
+      "error": null
+    },
+    {
+      "id": "R22",
+      "domain": "out_of_corpus",
+      "question": "How do I configure mutual TLS between services with Istio?",
+      "reference": "The provided documentation does not cover this topic, so the assistant should say it cannot answer from the documentation.",
+      "relevant_contexts": [],
+      "answerable": false,
+      "expected_route": "retrieve",
+      "answer": "Configuring mutual TLS (mTLS) in Istio is a great way to secure service-to-service communication. By default, Istio uses **Strict mTLS**, which means both the client and the server must present valid certificates.\n\nHere’s a step-by-step guide to configuring and verifying mTLS between services in your Istio-enabled Kubernetes cluster.\n\n### 1. Ensure Istio is Installed and Sidecars are Injected\nBefore configuring mTLS, make sure:\n- Istio is installed in your cluster.\n- Your namespaces have sidecar injection enabled (either via label `istio-injection=enabled` or via the `istioctl` command).\n\n```bash\n# Enable sidecar injection for a namespace\nkubectl label namespace <namespace-name> istio-injection=enabled\n```\n\n### 2. Understand Istio’s mTLS Modes\nIstio supports three mTLS modes, defined in the `PeerAuthentication` policy:\n- **STRICT**: Only mTLS traffic is allowed. (Default in recent Istio versions)\n- **PERMISSIVE**: Both mTLS and plaintext traffic are allowed.\n- **DISABLE**: Only plaintext traffic is allowed.\n\n### 3. Configure PeerAuthentication\nYou can set mTLS policies at the **namespace** level or the **workload** (deployment) level.\n\n#### Option A: Namespace-Level Policy (Recommended)\nThis applies to all workloads in the namespace.\n\n```yaml\napiVersion: security.istio.io/v1beta1\nkind: PeerAuthentication\nmetadata:\n  name: default\n  namespace: <your-namespace>\nspec:\n  selector:\n    matchLabels:\n      app: <your-app-label> # Optional: restrict to specific workloads\n  mtls:\n    mode: STRICT\n```\n\nApply it:\n```bash\nkubectl apply -f peer-authentication.yaml\n```\n\n#### Option B: Workload-Level Policy\nIf you want to apply mTLS to a specific service only:\n\n```yaml\napiVersion: security.istio.io/v1beta1\nkind: PeerAuthentication\nmetadata:\n  name: <service-name>-mtls\n  namespace: <your-namespace>\nspec:\n  selector:\n    matchLabels:\n      app: <your-service-label>\n  mtls:\n    mode: STRICT\n```\n\n### 4. Verify mTLS is Working\n\n#### Check PeerAuthentication Status\n```bash\nistioctl authn tls\n```\nThis command shows the mTLS mode for each workload. You should see `STRICT` for your services.\n\n#### Check Traffic\nYou can verify that traffic is encrypted by checking the Istio proxy logs or using `istioctl analyze`.\n\n```bash\n# Analyze for any mTLS-related issues\nistioctl analyze\n```\n\n#### Test with curl (from within the cluster)\nIf you have a test pod in the same namespace, you can try to call another service. If mTLS is working, the call should succeed. If you try to call with plaintext (e.g., using a non-Istio-enabled client), it should fail.\n\n### 5. Common Issues & Troubleshooting\n\n- **Connection Refused or 503 Errors**: This often happens if one service is in `STRICT` mode and the other is not sending mTLS traffic. Ensure both services have sidecars injected and are in compatible mTLS modes.\n- **Certificate Errors**: If you see certificate validation errors, check that the Istio CA is properly configured and that the sidecars are able to fetch certificates.\n- **Mixed Modes**: If you’re transitioning from plaintext to mTLS, you can temporarily use `PERMISSIVE` mode to allow both, then switch to `STRICT` once all clients are updated.\n\n### 6. Best Practices\n- **Start with PERMISSIVE**: If you’re migrating existing services, start with `PERMISSIVE` to avoid breaking traffic, then move to `STRICT`.\n- **Use STRICT for New Services**: For new services, always start with `STRICT` mTLS.\n- **Monitor with Kiali or Grafana**: Use Istio’s observability tools to monitor mTLS status and traffic patterns.\n\nLet me know if you need help with a specific scenario, such as cross-namespace mTLS or integrating with external services!",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 2.97,
+      "error": null
+    },
+    {
+      "id": "R23",
+      "domain": "out_of_corpus",
+      "question": "What is the monthly price of an Amazon EKS cluster?",
+      "reference": "The provided documentation does not cover this topic, so the assistant should say it cannot answer from the documentation.",
+      "relevant_contexts": [],
+      "answerable": false,
+      "expected_route": "retrieve",
+      "answer": "The provided documentation does not cover this.",
+      "contexts": [
+        "affinity:\nnodeAffinity:\npreferredDuringSchedulingIgnoredDuringExecution:\n- weight: 50\npreference:\nmatchExpressions:\n- key: kubernetes.io/arch\noperator: In\nvalues: [\"arm64\"]\n- weight: 30\npreference:\nmatchExpressions:\n- key: node-cost-tier\noperator: In\nvalues: [\"low-cost\"]\ncontainers:\n- name: processor\nimage: my-app:v1.0.0-multi-arch  # Multi-architecture image\nresources:\nrequests:\ncpu: 300m\nmemory: 512Mi\nCompliance and Governance\nCompliance Dashboard\n1. Audit Logging\n# Enhanced logging for compliance\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: compliance-report-job\nlabels:\ncompliance-required: \"true\"\ndata-classification: \"sensitive\"\nspec:\nschedule: \"0 0 1 * *\"  # Monthly\njobTemplate:\nmetadata:\nlabels:\ncompliance-required: \"true\"\naudit-log: \"enabled\"\nspec:\ntemplate:\nspec:\ncontainers:\n- name: compliance-reporter\nimage: compliance-tools:v2.1.0\ncommand:\n- sh\n- -c\n- |\n# Enhanced logging for audit trail\necho \"$(date -Iseconds) [AUDIT] Job started by: ${KUBERNETES_SERVICE_ACCOUNT}\"\necho \"$(date -Iseconds) [AUDIT] Processing compliance data for period: $(date -d 'last month' +%Y-%m)\"\n# Generate compliance report\n./generate-compliance-report --period=last-month --format=json\nif [ $? -eq 0 ]; then\necho \"$(date -Iseconds) [AUDIT] Compliance report generated successfully\"\n# Store audit record\nkubectl create configmap \"compliance-audit-$(date +%Y%m)\" \\\n--from-literal=\"status=completed\" \\\n--from-literal=\"timestamp=$(date -Iseconds)\" \\",
+        "Each Pod gets a unique completion index:\nspec:\ncompletionMode: Indexed\ncompletions: 3\nparallelism: 2\ntemplate:\nspec:\ncontainers:\n- name: worker\nimage: alpine:latest\ncommand:\n- sh\n- -c\n- |\necho \"Processing index: $JOB_COMPLETION_INDEX\"\n# Process specific data slice based on index\nNonIndexed vs Indexed Comparison\nUnderstanding CronJobs\nWhat Are CronJobs?\nA CronJob is a thin wrapper around Jobs that enables scheduling. It creates Job objects automatically based on a defined schedule using the familiar cron format.\nCronJob Architecture Flow\nSchedule Configuration\nThe schedule field uses the standard cron format:\n# ┌───────────── minute (0 - 59)\n# │ ┌───────────── hour (0 - 23)\n# │ │ ┌───────────── day of the month (1 - 31)\n# │ │ │ ┌───────────── month (1 - 12)\n# │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday)\n# │ │ │ │ │\n# * * * * *\nCommon Schedule Examples:\n# Every minute\nschedule: \"* * * * *\"\n# Every hour at minute 0\nschedule: \"0 * * * *\"\n# Daily at 2:30 AM\nschedule: \"30 2 * * *\"\n# Every Monday at 9:00 AM\nschedule: \"0 9 * * 1\"\n# Every 15 minutes\nschedule: \"*/15 * * * *\"\n# Shorthand expressions\nschedule: \"@hourly\"    # Every hour\nschedule: \"@daily\"     # Every day at midnight\nschedule: \"@weekly\"    # Every Sunday at midnight\nschedule: \"@monthly\"   # First day of each month at midnight\nschedule: \"@yearly\"    # January 1st at midnight\nCron Expression Guide\nComplete CronJob Example:\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: database-backup",
+        "schedule: \"@yearly\"    # January 1st at midnight\nCron Expression Guide\nComplete CronJob Example:\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: database-backup\nnamespace: production\nspec:\nschedule: \"0 2 * * *\"  # Daily at 2 AM\ntimeZone: \"America/New_York\"\njobTemplate:\nmetadata:\nlabels:\napp: db-backup\ntype: maintenance\nspec:\ntemplate:\nmetadata:\nlabels:\napp: db-backup\ntype: maintenance\nspec:\ncontainers:\n- name: backup-tool\nimage: postgres:13-alpine\ncommand:\n- sh\n- -c\n- |\npg_dump -h $DB_HOST -U $DB_USER -d $DB_NAME > /backup/backup-$(date +%Y%m%d-%H%M%S).sql\necho \"Backup completed successfully\"\nenv:\n- name: DB_HOST\nvalue: \"postgres.database.svc.cluster.local\"\n- name: DB_USER\nvalueFrom:\nsecretKeyRef:\nname: db-credentials\nkey: username\n- name: DB_NAME\nvalue: \"production_db\"\nvolumeMounts:\n- name: backup-storage\nmountPath: /backup\nresources:\nrequests:\ncpu: 200m\nmemory: 256Mi\nlimits:\ncpu: 500m\nmemory: 512Mi\nsecurityContext:\nrunAsNonRoot: true\nrunAsUser: 999\nreadOnlyRootFilesystem: true\nvolumes:\n- name: backup-storage\npersistentVolumeClaim:\nclaimName: backup-pvc\nrestartPolicy: OnFailure\nbackoffLimit: 3\nactiveDeadlineSeconds: 3600  # 1 hour timeout\nsuccessfulJobsHistoryLimit: 3\nfailedJobsHistoryLimit: 5\nconcurrencyPolicy: Forbid\nstartingDeadlineSeconds: 300\nReal-World Use Cases and Patterns\n1. Data Processing Pipeline\nScenario: Daily ETL job processing customer data\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: etl-customer-data\nspec:\nschedule: \"0 1 * * *\"  # Daily at 1 AM",
+        "# Fast startup and shutdown\nterminationGracePeriodSeconds: 30\nrestartPolicy: Never\n# Prevent runaway costs\nactiveDeadlineSeconds: 3600  # 1 hour max\nbackoffLimit: 2              # Limited retries\n2. Schedule Optimization for Cost Savings\n# Run during off-peak hours for cost savings\napiVersion: batch/v1\nkind: CronJob\nmetadata:\nname: cost-effective-processing\nspec:\n# Run during off-peak hours (2-4 AM)\nschedule: \"0 2 * * *\"\ntimeZone: \"UTC\"\njobTemplate:\nspec:\ntemplate:\nspec:\n# Prefer preemptible/spot instances\naffinity:\nnodeAffinity:\npreferredDuringSchedulingIgnoredDuringExecution:\n- weight: 100\npreference:\nmatchExpressions:\n- key: node-lifecycle\noperator: In\nvalues: [\"spot\", \"preemptible\"]\ncontainers:\n- name: batch-processor\nimage: my-app:latest\n# Use burstable QoS for cost efficiency\nresources:\nrequests:\ncpu: 500m\nmemory: 1Gi\nlimits:\ncpu: 2000m\nmemory: 4Gi\nrestartPolicy: OnFailure\n# Quick cleanup to minimize costs\nttlSecondsAfterFinished: 3600  # Clean up after 1 hour\n# Minimal history for cost savings\nsuccessfulJobsHistoryLimit: 1\nfailedJobsHistoryLimit: 2\n3. Multi-Architecture Cost Optimization\n# Multi-arch deployment for cost optimization\napiVersion: batch/v1\nkind: Job\nmetadata:\nname: multi-arch-job\nspec:\ntemplate:\nspec:\n# Allow scheduling on ARM nodes (often cheaper)\naffinity:\nnodeAffinity:\npreferredDuringSchedulingIgnoredDuringExecution:\n- weight: 50\npreference:\nmatchExpressions:\n- key: kubernetes.io/arch\noperator: In\nvalues: [\"arm64\"]\n- weight: 30\npreference:",
+        "\"audit_logs\": timedelta(days=2555),  # 7 years\n\"user_data\": timedelta(days=1825),   # 5 years\n\"temp_processing\": timedelta(days=30)\n}\nfor data_type, retention_period in retention_policies.items():\ncutoff_date = datetime.now() - retention_period\nprint(f\"Cleaning {data_type} older than {cutoff_date}\")\n# Log for audit trail\naudit_entry = {\n\"timestamp\": datetime.now().isoformat(),\n\"action\": \"data_cleanup\",\n\"data_type\": data_type,\n\"cutoff_date\": cutoff_date.isoformat(),\n\"retention_days\": retention_period.days\n}\nwith open(f\"/audit/cleanup-{data_type}-{datetime.now().strftime('%Y%m%d')}.json\", \"w\") as f:\njson.dump(audit_entry, f)\nvolumeMounts:\n- name: audit-storage\nmountPath: /audit\nvolumes:\n- name: audit-storage\npersistentVolumeClaim:\nclaimName: audit-logs-pvc\nrestartPolicy: OnFailure\nFuture Trends and Considerations\n1. Event-Driven Jobs with KEDA\nEvent-Driven Architecture with KEDA\n# KEDA ScaledJob for event-driven processing\napiVersion: keda.sh/v1alpha1\nkind: ScaledJob\nmetadata:\nname: queue-processor\nspec:\njobTargetRef:\ntemplate:\nspec:\ntemplate:\nspec:\ncontainers:\n- name: queue-processor\nimage: my-app/queue-processor:latest\ncommand: [\"./process-queue-items\"]\nenv:\n- name: QUEUE_URL\nvalue: \"https://sqs.us-west-2.amazonaws.com/123456789/processing-queue\"\nrestartPolicy: Never\nbackoffLimit: 3\npollingInterval: 30\nmaxReplicaCount: 10\nsuccessfulJobsHistoryLimit: 5\nfailedJobsHistoryLimit: 5\ntriggers:\n- type: aws-sqs-queue\nmetadata:"
+      ],
+      "context_sources": [
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        },
+        {
+          "source": "cronjobs.docx",
+          "source_type": "true"
+        }
+      ],
+      "thought_process": [
+        "Intent: Technical",
+        "Search Term: Amazon EKS monthly pricing",
+        "Planner model: openai/gpt-oss-20b",
+        "Context Retrieved",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "retrieve",
+      "models": {
+        "planner": "openai/gpt-oss-20b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 49.81,
+      "error": null
+    },
+    {
+      "id": "R24",
+      "domain": "out_of_corpus",
+      "question": "How do I deploy a Kafka cluster with the Strimzi operator?",
+      "reference": "The provided documentation does not cover this topic, so the assistant should say it cannot answer from the documentation.",
+      "relevant_contexts": [],
+      "answerable": false,
+      "expected_route": "retrieve",
+      "answer": "Hello! Deploying a Kafka cluster using the Strimzi operator is a great choice because it simplifies management and provides a consistent experience across different Kubernetes environments.\n\nHere is a step-by-step guide to deploying a Kafka cluster with Strimzi:\n\n### 1. Prerequisites\n- A running Kubernetes cluster (v1.16 or later recommended).\n- `kubectl` configured to access your cluster.\n- Helm (optional, but recommended for easy installation).\n\n### 2. Install the Strimzi Operator\nYou can install the Strimzi operator using Helm, which is the easiest method.\n\n```bash\n# Add the Strimzi Helm repository\nhelm repo add strimzi https://strimzi.io/charts/\n\n# Update the repository\nhelm repo update\n\n# Install the Strimzi operator\nhelm install strimzi-operator strimzi/strimzi-kafka-operator \\\n  --namespace strimzi-system \\\n  --create-namespace \\\n  --set watchNamespaces=\"default\"\n```\n\n> **Note:** The `--set watchNamespaces=\"default\"` parameter tells the operator to watch for Kafka resources in the `default` namespace. You can change this to your desired namespace or use `\"\"` to watch all namespaces.\n\n### 3. Deploy the Kafka Cluster\nCreate a YAML file (e.g., `kafka-cluster.yaml`) with the following content:\n\n```yaml\napiVersion: kafka.strimzi.io/v1beta2\nkind: Kafka\nmetadata:\n  name: my-cluster\n  namespace: default\nspec:\n  kafka:\n    version: 3.5.0  # Specify the Kafka version you want to use\n    replicas: 3\n    listeners:\n      - name: internal\n        port: 9092\n        type: internal\n        tls: false\n    config:\n      offsets.topic.replication.factor: 3\n      transaction.state.log.replication.factor: 3\n      transaction.state.log.min.isr: 2\n    storage:\n      type: jbod\n      volumes:\n        - id: 0\n          type: persistent-claim\n          size: 100Gi\n          deleteClaim: false\n  zookeeper:\n    replicas: 3\n    storage:\n      type: persistent-claim\n      size: 100Gi\n      deleteClaim: false\n  entityOperator:\n    topicOperator: {}\n    userOperator: {}\n```\n\n> **Note:** Strimzi supports both Zookeeper-based and KRaft (Kafka Raft) modes. The example above uses Zookeeper for simplicity. For production, consider using KRaft mode if you are using a newer version of Strimzi.\n\n### 4. Apply the Configuration\nApply the YAML file to your cluster:\n\n```bash\nkubectl apply -f kafka-cluster.yaml\n```\n\n### 5. Verify the Deployment\nCheck the status of the Kafka cluster:\n\n```bash\nkubectl get kafka -n default\n```\n\nYou should see a status like `Ready` once the cluster is fully deployed.\n\n### 6. Connect to Kafka\nTo connect to the Kafka cluster, you can use the internal listener. For example, using `kcat` (formerly `kafkacat`):\n\n```bash\nkcat -b my-cluster-kafka-bootstrap:9092 -L\n```\n\n### Additional Tips\n- **Monitoring:** Strimzi integrates well with Prometheus and Grafana. You can enable monitoring by adding annotations to your Kafka resource.\n- **Security:** For production, enable TLS and authentication. Strimzi supports various authentication mechanisms like TLS, SASL, and OAuth.\n- **Scaling:** You can easily scale the number of Kafka brokers or Zookeeper nodes by updating the `replicas` field in the `Kafka` resource.\n\nLet me know if you need help with any specific part of the deployment!",
+      "contexts": [],
+      "context_sources": [],
+      "thought_process": [
+        "Intent: Conversational/Memory",
+        "Retrieval: Skipped",
+        "Planner model: qwen/qwen3.8-27b",
+        "Responder model: qwen/qwen3.8-27b"
+      ],
+      "route": "conversational",
+      "models": {
+        "planner": "qwen/qwen3.8-27b",
+        "responder": "qwen/qwen3.8-27b"
+      },
+      "latency_s": 4.25,
+      "error": null
+    }
+  ]
+}

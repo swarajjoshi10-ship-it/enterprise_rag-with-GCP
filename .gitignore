@@ -71,3 +71,6 @@ evals/noise_cache/
 
 # Noise-corpus PDFs (third-party material): keep local, pass with --noise-dir
 DATA/noisy_data/
+
+# run logs contain the Qdrant cluster URL
+evals/results/*.log
